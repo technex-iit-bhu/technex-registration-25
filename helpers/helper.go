@@ -12,10 +12,10 @@ type resMessage struct {
 
 // this function can be called as helpers.ResponseMsg(c, code, message, data)
 func ResponseMsg(c *fiber.Ctx, code int, msg string, data interface{}) error {
-	resPonse := &resMessage{
+	response := &resMessage{
 		Code:    code,
 		Message: msg,
 		Data:    data,
 	}
-	return c.Status(code).JSON(resPonse)
+	return c.Status(code).JSON(response)
 }
