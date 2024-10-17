@@ -82,11 +82,10 @@ func GetUserFromToken(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid token"})
 	}
-	// objectId, _ := primitive.ObjectIDFromHex(userID)
 	var result models.Users
 	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key: "username", Value: username}}).Decode(&result)
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"message": err.Error()})
+		return c.Status(404).JSON(fiber.Map{"message": "user does not exist"})
 	}
 	return c.Status(200).JSON(fiber.Map{"data": result})
 }
