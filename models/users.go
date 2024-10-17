@@ -17,7 +17,7 @@ type Users struct {
 	Phone        string             `json:"phone,omitempty" bson:"phone,omitempty" binding:"required"`
 	ReferralCode string             `json:"referral_code,omitempty" bson:"referral_code,omitempty" binding:"required"`
 	Email        string             `json:"email,omitempty" bson:"email,omitempty" binding:"required"`
-	Github        string             `json:"github,omitempty" bson:"github,omitempty"`
+	Github       string             `json:"github,omitempty" bson:"github,omitempty"`
 	CreatedAt    time.Time          `json:"createdAt,omitempty" bson:"createdAt,omitempty" binding:"required"`
 	UpdatedAt    time.Time          `json:"updatedAt,omitempty" bson:"updatedAt,omitempty" binding:"required"`
 }
