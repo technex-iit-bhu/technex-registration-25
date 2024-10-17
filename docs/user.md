@@ -22,6 +22,10 @@ Check if the API is running.
 }
 ```
 
+**Response Codes**
+- `200` - API is running successfully
+- `500` - Server error
+
 #### User Registration
 ```http
 POST /api/user/register
@@ -49,6 +53,11 @@ Create a new user account.
   "id": "string" // MongoDB ObjectID
 }
 ```
+
+**Response Codes**
+- `201` - User created successfully
+- `400` - Invalid request body
+- `500` - Server error
 
 #### Get User Profile
 ```http
@@ -79,6 +88,11 @@ Authorization: Bearer <token>
 }
 ```
 
+**Response Codes**
+- `200` - Success
+- `404` - Invalid token or user not found
+- `500` - Server error
+
 #### Password Login
 ```http
 POST /api/user/login/password
@@ -100,6 +114,11 @@ Authenticate user with username and password.
 }
 ```
 
+**Response Codes**
+- `200` - Success
+- `404` - Invalid credentials
+- `500` - Server error
+
 #### Google Login
 ```http
 POST /api/user/login/google
@@ -119,6 +138,11 @@ Authenticate user with Google token.
   "token": "string"
 }
 ```
+
+**Response Codes**
+- `200` - Success
+- `404` - Invalid token or email not found
+- `500` - Server error
 
 #### GitHub Login
 ```http
@@ -140,6 +164,11 @@ Authenticate user with GitHub token.
 }
 ```
 
+**Response Codes**
+- `200` - Success
+- `404` - Invalid token or GitHub account not found
+- `500` - Server error
+
 #### Delete Account
 ```http
 DELETE /api/user/delete
@@ -157,6 +186,11 @@ Authorization: Bearer <token>
   "message": "user yeeted successfully"
 }
 ```
+
+**Response Codes**
+- `200` - Success
+- `404` - User not found or invalid token
+- `500` - Server error
 
 #### Update Profile
 ```http
@@ -190,6 +224,11 @@ Authorization: Bearer <token>
 }
 ```
 
+**Response Codes**
+- `200` - Success
+- `404` - User not found or invalid credentials/password
+- `500` - Server error
+
 #### Password Recovery Request
 ```http
 GET /api/user/recovery/:username
@@ -205,6 +244,11 @@ Send password recovery email to user.
   "message": "recovery email sent successfully"
 }
 ```
+
+**Response Codes**
+- `200` - Success, recovery email sent
+- `404` - User not found
+- `500` - Server error or unable to send email
 
 #### Update Password with Recovery Token
 ```http
@@ -227,15 +271,14 @@ Update password using recovery token.
 }
 ```
 
-### Status Codes
-- 200: Success
-- 201: Created
-- 400: Bad Request
-- 404: Not Found
-- 500: Server Error
+**Response Codes**
+- `200` - Success
+- `400` - Invalid recovery token
+- `404` - User not found
+- `500` - Server error
 
-### Error Responses
-All endpoints may return error responses in the following format:
+### Error Response Format
+All error responses follow this format:
 ```json
 {
   "message": "string" // Error description
