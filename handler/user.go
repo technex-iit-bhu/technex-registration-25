@@ -55,7 +55,7 @@ func LoginWithPassword(c *fiber.Ctx) error {
 	fmt.Println(body)
 
 	var result models.Users
-	err = db.Collection("users").FindOne(context.Background(), bson.D{{"username", body.Username}}).Decode(&result)
+	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key : "username",Value : body.Username}}).Decode(&result)
 	fmt.Println(result)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid username"})
@@ -84,7 +84,7 @@ func GetUserFromToken(c *fiber.Ctx) error {
 	}
 	// objectId, _ := primitive.ObjectIDFromHex(userID)
 	var result models.Users
-	err = db.Collection("users").FindOne(context.Background(), bson.D{{"username", username}}).Decode(&result)
+	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key : "username", Value : username}}).Decode(&result)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": err.Error()})
 	}
