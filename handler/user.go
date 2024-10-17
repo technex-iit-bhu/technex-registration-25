@@ -2,12 +2,13 @@ package handler
 
 import (
 	"context"
-	"github.com/gofiber/fiber/v2"
 	"log"
 	"technexRegistration/database"
 	"technexRegistration/helpers"
 	"technexRegistration/models"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func Hello(c *fiber.Ctx) error {
@@ -21,18 +22,20 @@ func CreateUsers(c *fiber.Ctx) error {
 
 	if err != nil {
 		log.Fatal(err.Error())
+		return c.Status(400).JSON(fiber.Map{"message":err.Error()})
 	}
 
 	users.CreatedAt = time.Now()
 	users.UpdatedAt = time.Now()
-
+	
 	if err := c.BodyParser(users); err != nil {
 		return helpers.ResponseMsg(c, 400, err.Error(), nil)
 	} else {
+		users.Password=helpers.HashPassword(users.Password)
 		if r, err := db.Collection("users").InsertOne(ctx, users); err != nil {
-			return helpers.ResponseMsg(c, 500, "Inserted data unsuccesfully", err.Error())
+			return c.Status(500).JSON(fiber.Map{"message":err.Error()})
 		} else {
-			return helpers.ResponseMsg(c, 200, "Inserted data succesfully", r)
+			return c.Status(201).JSON(fiber.Map{"id":r.InsertedID})
 		}
 	}
 }
