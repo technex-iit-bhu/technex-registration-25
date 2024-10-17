@@ -3,13 +3,14 @@ package handler
 import (
 	"context"
 	_ "fmt"
-	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"technexRegistration/database"
 	"technexRegistration/models"
 	"technexRegistration/utils"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func Hello(c *fiber.Ctx) error {
@@ -148,6 +149,7 @@ func DeleteUser(c *fiber.Ctx) error {
 	}
 	return c.Status(200).JSON(fiber.Map{"message": "user yeeted successfully"})
 }
+
 func UpdateDetails(c *fiber.Ctx) error {
 	token := c.Get("Authorization")[7:]
 	db, err := database.Connect()
@@ -166,24 +168,38 @@ func UpdateDetails(c *fiber.Ctx) error {
 		Branch      string `json:"branch"`
 		Phone       string `json:"phone"`
 	}
+
 	c.BodyParser(&body)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"message": "invalid token"})
+	}
+
+	var user models.Users
+	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key: "username", Value: username}}).Decode(&user)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"message": "user does not exist"})
+	}
+	if !utils.CheckPassword(body.OldPassword, user.Password) {
+		return c.Status(404).JSON(fiber.Map{"message": "invalid password"})
+	}
+
 	body.OldPassword = utils.HashPassword(body.OldPassword)
 	if body.NewPassword == "" {
 		body.NewPassword = body.OldPassword
 	} else {
 		body.NewPassword = utils.HashPassword(body.NewPassword)
 	}
-	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"message": "invalid token"})
-	}
-	result, _ := db.Collection("users").UpdateOne(context.Background(), bson.D{{Key: "username", Value: username}, {Key: "password", Value: body.OldPassword}},
+
+	result, _ := db.Collection("users").UpdateOne(context.Background(), bson.D{{Key: "username", Value: username}},
 		bson.D{{Key: "$set", Value: bson.D{
 			{Key: "name", Value: body.Name},
 			{Key: "password", Value: body.NewPassword},
 			{Key: "institute", Value: body.Institute},
 			{Key: "city", Value: body.City}, {Key: "year", Value: body.Year},
 			{Key: "branch", Value: body.Branch},
-			{Key: "phone", Value: body.Phone}}}})
+			{Key: "phone", Value: body.Phone},
+			{Key: "UpdatedAt", Value: time.Now()}}}})
+
 	if result.MatchedCount == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "user does not exist"})
 	}

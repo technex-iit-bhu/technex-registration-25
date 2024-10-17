@@ -20,4 +20,5 @@ func Route(app *fiber.App) {
 	user.Post("/login/google", handler.LoginWithGoogle)
 	user.Post("/login/github", handler.LoginWithGithub)
 	user.Delete("/delete", handler.DeleteUser)
+	user.Patch("/update",handler.UpdateDetails)
 }
