@@ -6,9 +6,8 @@ import (
 	"log"
 	"technexRegistration/database"
 	"technexRegistration/models"
-	"technexRegistration/helpers"
+	"technexRegistration/utils"
 	"time"
-
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -33,11 +32,7 @@ func CreateUsers(c *fiber.Ctx) error {
 	if err := c.BodyParser(users); err != nil {
 		return utils.ResponseMsg(c, 400, err.Error(), nil)
 	} else {
-<<<<<<< HEAD
 		users.Password = utils.HashPassword(users.Password)
-=======
-		users.Password = helpers.HashPassword(users.Password)
->>>>>>> 6485cae5d1aeacc0626a9716d162df7ec3ee7810
 		if r, err := db.Collection("users").InsertOne(ctx, users); err != nil {
 			return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 		} else {
@@ -65,10 +60,10 @@ func LoginWithPassword(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid username"})
 	}
-	if !helpers.CheckPassword(body.Password, result.Password) {
+	if !utils.CheckPassword(body.Password, result.Password) {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid password"})
 	} else {
-		token, _ := helpers.SerialiseUser(result.Username)
+		token, _ := utils.SerialiseUser(result.Username)
 		return c.Status(200).JSON(fiber.Map{"token": token})
 	}
 }
@@ -82,7 +77,7 @@ func GetUserFromToken(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"message": err.Error()})
 	}
-	username,err:=helpers.DeserialiseUser(body.Token)
+	username,err:=utils.DeserialiseUser(body.Token)
 	fmt.Println(username)
 	if err!=nil{
 		return c.Status(404).JSON(fiber.Map{"message": "invalid token"})
