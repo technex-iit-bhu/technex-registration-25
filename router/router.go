@@ -14,5 +14,5 @@ func Route(app *fiber.App) {
 	api.Get("/", handler.Hello)
 
 	user := api.Group("/user")
-	user.Post("/create",handler.CreateUsers)
+	user.Post("/create", handler.CreateUsers)
 }

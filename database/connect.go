@@ -11,15 +11,15 @@ import (
 var client *mongo.Client = nil
 var connected bool = false
 
-func Init() (error){
+func Init() error {
 	clientOptions := options.Client().ApplyURI(config.Config("MONGO_URI"))
 	var ctx = context.Background()
 	c, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		return err
 	}
-	client=c
-	connected=true
+	client = c
+	connected = true
 	err = client.Ping(ctx, nil)
 	if err != nil {
 		return err
@@ -30,13 +30,13 @@ func Init() (error){
 
 func Connect() (*mongo.Database, error) {
 	if !connected {
-		return nil,fmt.Errorf("client not connected")
+		return nil, fmt.Errorf("client not connected")
 	}
-	
+
 	return client.Database(config.Config("MONGO_DB_NAME")), nil
 }
 
-func Disconnect() error{
+func Disconnect() error {
 	if err := client.Disconnect(context.TODO()); err != nil {
 		return err
 	}
