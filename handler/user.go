@@ -42,16 +42,13 @@ func CreateUsers(c *fiber.Ctx) error {
 }
 
 func GetUserFromToken(c *fiber.Ctx) error {
-	var body struct {
-		Token string `json:"token"`
-	}
-	c.BodyParser(&body)
+	token := c.Get("Authorization")[7:]
 	db, err := database.Connect()
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"message": err.Error()})
 	}
-	username, err := utils.DeserialiseUser(body.Token)
-	// fmt.Println(username)
+	username, err := utils.DeserialiseUser(token)
+
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid token"})
 	}
@@ -74,11 +71,10 @@ func LoginWithPassword(c *fiber.Ctx) error {
 		Password string `json:"password"`
 	}
 	c.BodyParser(&body)
-	// fmt.Println(body)
 
 	var result models.Users
 	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key: "username", Value: body.Username}}).Decode(&result)
-	// fmt.Println(result)
+
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid username"})
 	}
@@ -100,11 +96,11 @@ func LoginWithGoogle(c *fiber.Ctx) error {
 		GoogleToken string `json:"google_token"`
 	}
 	c.BodyParser(&body)
-	// fmt.Println(body)
+
 	email, _ := utils.DeserialiseGmailToken(body.GoogleToken)
 	var result models.Users
 	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key: "email", Value: email}}).Decode(&result)
-	// fmt.Println(result)
+
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid email"})
 	} else {
@@ -122,11 +118,11 @@ func LoginWithGithub(c *fiber.Ctx) error {
 		GithubToken string `json:"github_token"`
 	}
 	c.BodyParser(&body)
-	// fmt.Println(body)
+
 	email, _ := utils.DeserialiseGmailToken(body.GithubToken)
 	var result models.Users
 	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key: "github", Value: email}}).Decode(&result)
-	// fmt.Println(result)
+
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid github"})
 	} else {
@@ -142,7 +138,7 @@ func DeleteUser(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"message": err.Error()})
 	}
 	username, err := utils.DeserialiseUser(token)
-	// fmt.Println(username)
+
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid token"})
 	}
@@ -151,4 +147,45 @@ func DeleteUser(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"message": "user does not exist"})
 	}
 	return c.Status(200).JSON(fiber.Map{"message": "user yeeted successfully"})
+}
+func UpdateDetails(c *fiber.Ctx) error {
+	token := c.Get("Authorization")[7:]
+	db, err := database.Connect()
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"message": err.Error()})
+	}
+	username, err := utils.DeserialiseUser(token)
+
+	var body struct {
+		Name        string `json:"name"`
+		OldPassword string `json:"old_password"`
+		NewPassword string `json:"new_password"`
+		Institute   string `json:"institute"`
+		City        string `json:"city"`
+		Year        int    `json:"year"`
+		Branch      string `json:"branch"`
+		Phone       string `json:"phone"`
+	}
+	c.BodyParser(&body)
+	body.OldPassword = utils.HashPassword(body.OldPassword)
+	if body.NewPassword == "" {
+		body.NewPassword = body.OldPassword
+	} else {
+		body.NewPassword = utils.HashPassword(body.NewPassword)
+	}
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"message": "invalid token"})
+	}
+	result, _ := db.Collection("users").UpdateOne(context.Background(), bson.D{{Key: "username", Value: username}, {Key: "password", Value: body.OldPassword}},
+		bson.D{{Key: "$set", Value: bson.D{
+			{Key: "name", Value: body.Name},
+			{Key: "password", Value: body.NewPassword},
+			{Key: "institute", Value: body.Institute},
+			{Key: "city", Value: body.City}, {Key: "year", Value: body.Year},
+			{Key: "branch", Value: body.Branch},
+			{Key: "phone", Value: body.Phone}}}})
+	if result.MatchedCount == 0 {
+		return c.Status(404).JSON(fiber.Map{"message": "user does not exist"})
+	}
+	return c.Status(200).JSON(fiber.Map{"message": "user updated successfully"})
 }
