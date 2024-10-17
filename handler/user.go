@@ -3,13 +3,13 @@ package handler
 import (
 	"context"
 	"fmt"
+	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"technexRegistration/database"
 	"technexRegistration/models"
 	"technexRegistration/utils"
 	"time"
-	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 func Hello(c *fiber.Ctx) error {
@@ -55,7 +55,7 @@ func LoginWithPassword(c *fiber.Ctx) error {
 	fmt.Println(body)
 
 	var result models.Users
-	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key : "username",Value : body.Username}}).Decode(&result)
+	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key: "username", Value: body.Username}}).Decode(&result)
 	fmt.Println(result)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid username"})
@@ -77,16 +77,16 @@ func GetUserFromToken(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"message": err.Error()})
 	}
-	username,err:=utils.DeserialiseUser(body.Token)
+	username, err := utils.DeserialiseUser(body.Token)
 	fmt.Println(username)
-	if err!=nil{
+	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid token"})
 	}
 	// objectId, _ := primitive.ObjectIDFromHex(userID)
 	var result models.Users
-	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key : "username", Value : username}}).Decode(&result)
+	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key: "username", Value: username}}).Decode(&result)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": err.Error()})
 	}
-	return c.Status(200).JSON(fiber.Map{"data":result})
+	return c.Status(200).JSON(fiber.Map{"data": result})
 }

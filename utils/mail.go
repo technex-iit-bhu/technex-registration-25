@@ -1,9 +1,9 @@
 package utils
 
 import (
-	"technexRegistration/config"
 	"fmt"
 	smtp "net/smtp"
+	"technexRegistration/config"
 )
 
 func SendOTP(to, otp, otp_type string) error {
@@ -28,4 +28,3 @@ func SendMail(tempToken, otp, otp_type string) error {
 	}
 	return SendOTP(gmail, otp, otp_type)
 }
-
