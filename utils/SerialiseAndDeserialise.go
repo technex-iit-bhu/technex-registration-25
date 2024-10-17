@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"fmt"
 	"technexRegistration/config"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -9,7 +11,7 @@ import (
 var serialKey = []byte(config.Config("JWT_SECRET"))
 var gmailKey = []byte(config.Config("GMAIL_SECRET"))
 var githubKey = []byte(config.Config("GITHUB_SECRET"))
-var tempTokenKey = []byte(config.Config("TEMPTOKEN_SECRET"))
+var recoveryKey = []byte(config.Config("RECOVERY_SECRET"))
 
 func SerialiseUser(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -82,27 +84,29 @@ func DeserialiseGithubToken(signedToken string) (string, error) {
 	return claims["github"].(string), nil
 }
 
-func SerialiseTempToken(username, gmail string) (string, error) {
+func SerialiseRecovery(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
-		"gmail":    gmail,
+		"expires_at":time.Now().Add(10*time.Minute).Unix(),
 	})
-	signedToken, err := token.SignedString(tempTokenKey)
+	signedToken, err := token.SignedString(recoveryKey)
 	if err != nil {
 		return "", err
 	}
 	return signedToken, nil
 }
 
-func DeserialiseTempToken(signedToken string) (string, string, error) {
+func DeserialiseRecovery(signedToken string) (string, error) {
 	token, err := jwt.Parse(signedToken, func(token *jwt.Token) (interface{}, error) {
-		return []byte(tempTokenKey), nil
+		return []byte(recoveryKey), nil
 	})
 
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 	claims, _ := token.Claims.(jwt.MapClaims)
-
-	return claims["username"].(string), claims["gmail"].(string), nil
+	if time.Now().After(time.Unix(int64(claims["expires_at"].(float64)),0)) {
+		return "", fmt.Errorf("expired")
+	}
+	return claims["username"].(string), nil
 }
