@@ -86,8 +86,8 @@ func DeserialiseGithubToken(signedToken string) (string, error) {
 
 func SerialiseRecovery(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": username,
-		"expires_at":time.Now().Add(10*time.Minute).Unix(),
+		"username":   username,
+		"expires_at": time.Now().Add(10 * time.Minute).Unix(),
 	})
 	signedToken, err := token.SignedString(recoveryKey)
 	if err != nil {
@@ -105,7 +105,7 @@ func DeserialiseRecovery(signedToken string) (string, error) {
 		return "", err
 	}
 	claims, _ := token.Claims.(jwt.MapClaims)
-	if time.Now().After(time.Unix(int64(claims["expires_at"].(float64)),0)) {
+	if time.Now().After(time.Unix(int64(claims["expires_at"].(float64)), 0)) {
 		return "", fmt.Errorf("expired")
 	}
 	return claims["username"].(string), nil

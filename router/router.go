@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"technexRegistration/handler"
+	user_handler "technexRegistration/handler/user"
 )
 
 func Route(app *fiber.App) {
@@ -14,13 +15,13 @@ func Route(app *fiber.App) {
 	api.Get("/", handler.Hello)
 
 	user := api.Group("/user")
-	user.Post("/register", handler.CreateUsers)
-	user.Get("/profile", handler.GetUserFromToken)
-	user.Post("/login/password", handler.LoginWithPassword)
-	user.Post("/login/google", handler.LoginWithGoogle)
-	user.Post("/login/github", handler.LoginWithGithub)
-	user.Delete("/delete", handler.DeleteUser)
-	user.Patch("/update", handler.UpdateDetails)
-	user.Get("/recovery/:username",handler.SendRecoveryEmail)
-	user.Post("/verify_recovery_and_update_password",handler.UpdatePassword)
+	user.Post("/register", user_handler.CreateUsers)
+	user.Get("/profile", user_handler.GetUserFromToken)
+	user.Post("/login/password", user_handler.LoginWithPassword)
+	user.Post("/login/google", user_handler.LoginWithGoogle)
+	user.Post("/login/github", user_handler.LoginWithGithub)
+	user.Delete("/delete", user_handler.DeleteUser)
+	user.Patch("/update", user_handler.UpdateDetails)
+	user.Get("/recovery/:username", user_handler.SendRecoveryEmail)
+	user.Post("/verify_recovery_and_update_password", user_handler.UpdatePassword)
 }
