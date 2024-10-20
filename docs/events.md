@@ -30,7 +30,7 @@ This handler allows you to create a new event by providing the event details in 
   "sub-description": "Additional Information",
   "start_date": "2024-12-01",
   "end_date": "2024-12-31",
-  "github": "https://github.com/event_repo"
+  "github": "https://github.com/technex-iit-bhu/events/event1.md"
 }
 ```
 
@@ -80,7 +80,7 @@ func GetEventDetails(c *fiber.Ctx) error
     "sub-description": "Additional Information",
     "start_date": "2024-12-01",
     "end_date": "2024-12-31",
-    "github": "https://github.com/event_repo"
+    "github": "https://github.com/technex-iit-bhu/events/event1.md"
   }
 }
 ```
@@ -116,7 +116,7 @@ func GetEventByID(c *fiber.Ctx) error
     "sub-description": "Additional Information",
     "start_date": "2024-12-01",
     "end_date": "2024-12-31",
-    "github": "https://github.com/event_repo"
+    "github": "https://github.com/technex-iit-bhu/events/event1.md"
   }
 }
 ```
@@ -149,7 +149,7 @@ func GetAllEvents(c *fiber.Ctx) error
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",
       "end_date": "2024-12-31",
-      "github": "https://github.com/event1_repo"
+      "github": "https://github.com/technex-iit-bhu/events/event1.md"
     },
     {
       "id": "ObjectID",
@@ -158,7 +158,7 @@ func GetAllEvents(c *fiber.Ctx) error
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",
       "end_date": "2024-12-31",
-      "github": "https://github.com/event2_repo"
+      "github": "https://github.com/technex-iit-bhu/events/event2.md"
     }
   ]
 }
@@ -185,7 +185,7 @@ This handler updates an existing event by its MongoDB ObjectID. Only the fields 
   "sub-description": "Updated Information",
   "start_date": "2024-12-01",
   "end_date": "2024-12-31",
-  "github": "https://github.com/updated_event_repo"
+  "github": "https://github.com/technex-iit-bhu/events/event2.md"
 }
 ```
 
@@ -259,7 +259,7 @@ This handler allows inserting multiple events in bulk.
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",
       "end_date": "2024-12-31",
-      "github": "https://github.com/event1_repo"
+      "github": "https://github.com/technex-iit-bhu/events/event1.md"
     },
     {
       "title": "Event 2",
@@ -267,7 +267,7 @@ This handler allows inserting multiple events in bulk.
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",
       "end_date": "2024-12-31",
-      "github": "https://github.com/event2_repo"
+      "github": "https://github.com/technex-iit-bhu/events/event2.md"
     }
   ]
 }
