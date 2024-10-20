@@ -1,20 +1,23 @@
 # Event Management API Documentation
 
-This documentation describes the event management API, covering the key handlers and routes for creating, retrieving, updating, and deleting events. The API supports bulk operations and handles event data in MongoDB.
+This documentation describes the event management API, covering the key handlers and routes for creating,
+retrieving, updating, and deleting events. The API supports bulk operations and handles event data in MongoDB.
 
 ## Table of Contents
 - [Insert Event](#insert-event)
+- [Get Event by Name](#get-event-by-name)
 - [Get Event by ID](#get-event-by-id)
 - [Get All Events](#get-all-events)
 - [Update Event](#update-event)
 - [Delete Event by Name](#delete-event-by-name)
 - [Bulk Insert Events](#bulk-insert-events)
-- [Bulk Update Events](#bulk-update-events)
+
+---
 
 ## Insert Event
 
 ### Route:
-`POST /events`
+`POST /events/insertEvent`
 
 ### Description:
 This handler allows you to create a new event by providing the event details in the request body.
@@ -22,10 +25,11 @@ This handler allows you to create a new event by providing the event details in 
 ### Request Body:
 ```json
 {
-  "name": "Event Name",
-  "desc": "Event Description",
-  "startDate": "2024-12-01T00:00:00Z",
-  "endDate": "2024-12-31T00:00:00Z",
+  "title": "Event Title",
+  "description": "Event Description",
+  "sub-description": "Additional Information",
+  "start_date": "2024-12-01",
+  "end_date": "2024-12-31",
   "github": "https://github.com/event_repo"
 }
 ```
@@ -43,6 +47,41 @@ func InsertEvent(c *fiber.Ctx) error
 {
   "message": "Event inserted successfully",
   "event_id": "ObjectID"
+}
+```
+
+---
+
+## Get Event by Name
+
+### Route:
+`GET /events/:name`
+
+### Description:
+This handler retrieves a specific event based on its name.
+
+### Parameters:
+- `name`: The title of the event to retrieve.
+
+### Structure:
+```go
+func GetEventDetails(c *fiber.Ctx) error
+```
+- Extracts the event name from the URL parameters.
+- Queries the MongoDB collection for the corresponding event.
+- Returns the event details if found.
+
+### Response:
+```json
+{
+  "event": {
+    "title": "Event Title",
+    "description": "Event Description",
+    "sub-description": "Additional Information",
+    "start_date": "2024-12-01",
+    "end_date": "2024-12-31",
+    "github": "https://github.com/event_repo"
+  }
 }
 ```
 
@@ -72,10 +111,11 @@ func GetEventByID(c *fiber.Ctx) error
 {
   "event": {
     "id": "ObjectID",
-    "name": "Event Name",
-    "desc": "Event Description",
-    "startDate": "2024-12-01T00:00:00Z",
-    "endDate": "2024-12-31T00:00:00Z",
+    "title": "Event Title",
+    "description": "Event Description",
+    "sub-description": "Additional Information",
+    "start_date": "2024-12-01",
+    "end_date": "2024-12-31",
     "github": "https://github.com/event_repo"
   }
 }
@@ -93,7 +133,7 @@ This handler retrieves all the events stored in the MongoDB collection.
 
 ### Structure:
 ```go
-func GetEvents(c *fiber.Ctx) error
+func GetAllEvents(c *fiber.Ctx) error
 ```
 - Fetches all the events from the MongoDB collection.
 - Returns the list of all events.
@@ -104,18 +144,20 @@ func GetEvents(c *fiber.Ctx) error
   "events": [
     {
       "id": "ObjectID",
-      "name": "Event 1",
-      "desc": "Event 1 Description",
-      "startDate": "2024-12-01T00:00:00Z",
-      "endDate": "2024-12-31T00:00:00Z",
+      "title": "Event 1",
+      "description": "Event 1 Description",
+      "sub-description": "Additional Information",
+      "start_date": "2024-12-01",
+      "end_date": "2024-12-31",
       "github": "https://github.com/event1_repo"
     },
     {
       "id": "ObjectID",
-      "name": "Event 2",
-      "desc": "Event 2 Description",
-      "startDate": "2024-12-01T00:00:00Z",
-      "endDate": "2024-12-31T00:00:00Z",
+      "title": "Event 2",
+      "description": "Event 2 Description",
+      "sub-description": "Additional Information",
+      "start_date": "2024-12-01",
+      "end_date": "2024-12-31",
       "github": "https://github.com/event2_repo"
     }
   ]
@@ -127,21 +169,22 @@ func GetEvents(c *fiber.Ctx) error
 ## Update Event
 
 ### Route:
-`PUT /events/:id`
+`PATCH /events/updateEvent`
 
 ### Description:
 This handler updates an existing event by its MongoDB ObjectID. Only the fields provided in the request body will be updated, leaving other fields unaffected.
 
 ### Parameters:
-- `id`: The ObjectID of the event to update.
+- `id`: The ObjectID of the event to update (passed as a parameter in the URL).
 
 ### Request Body:
 ```json
 {
-  "name": "Updated Event Name",
-  "desc": "Updated Event Description",
-  "startDate": "2024-12-01T00:00:00Z",
-  "endDate": "2024-12-31T00:00:00Z",
+  "title": "Updated Event Title",
+  "description": "Updated Event Description",
+  "sub-description": "Updated Information",
+  "start_date": "2024-12-01",
+  "end_date": "2024-12-31",
   "github": "https://github.com/updated_event_repo"
 }
 ```
@@ -167,7 +210,7 @@ func UpdateEvent(c *fiber.Ctx) error
 ## Delete Event by Name
 
 ### Route:
-`DELETE /events`
+`DELETE /events/deleteEvent`
 
 ### Description:
 This handler deletes an event by its name.
@@ -175,7 +218,7 @@ This handler deletes an event by its name.
 ### Request Body:
 ```json
 {
-  "name": "Event Name"
+  "name": "Event Title"
 }
 ```
 
@@ -192,7 +235,7 @@ func DeleteEvent(c *fiber.Ctx) error
 {
   "message": "Event deleted",
   "deleted": 1,
-  "name": "Event Name"
+  "name": "Event Title"
 }
 ```
 
@@ -201,7 +244,7 @@ func DeleteEvent(c *fiber.Ctx) error
 ## Bulk Insert Events
 
 ### Route:
-`POST /events/bulk`
+`POST /events/insertEvents`
 
 ### Description:
 This handler allows inserting multiple events in bulk.
@@ -211,17 +254,19 @@ This handler allows inserting multiple events in bulk.
 {
   "events": [
     {
-      "name": "Event 1",
-      "desc": "Event 1 Description",
-      "startDate": "2024-12-01T00:00:00Z",
-      "endDate": "2024-12-31T00:00:00Z",
+      "title": "Event 1",
+      "description": "Event 1 Description",
+      "sub-description": "Additional Information",
+      "start_date": "2024-12-01",
+      "end_date": "2024-12-31",
       "github": "https://github.com/event1_repo"
     },
     {
-      "name": "Event 2",
-      "desc": "Event 2 Description",
-      "startDate": "2024-12-01T00:00:00Z",
-      "endDate": "2024-12-31T00:00:00Z",
+      "title": "Event 2",
+      "description": "Event 2 Description",
+      "sub-description": "Additional Information",
+      "start_date": "2024-12-01",
+      "end_date": "2024-12-31",
       "github": "https://github.com/event2_repo"
     }
   ]
@@ -241,54 +286,5 @@ func BulkInsertEvents(c *fiber.Ctx) error
 {
   "message": "Events inserted successfully",
   "insertedIDs": ["ObjectID1", "ObjectID2"]
-}
-```
-
----
-
-## Bulk Update Events
-
-### Route:
-`PUT /events/bulk`
-
-### Description:
-This handler allows updating multiple events in bulk.
-
-### Request Body:
-```json
-{
-  "events": [
-    {
-      "name" : "event 1",
-      "description" : "event 1 description",
-      "sub-description"  : "sub-description",
-      "start_date" : "2024-12-01",
-      "end_date"  : "2024-12-31",
-      "github": "https://github.com/technex-iit-bhu/events/event1.md"
-    },
-    {
-      "name" : "event 2",
-      "description" : "event 2 description",
-      "sub-description"  : "sub-description",
-      "start_date" : "2024-12-01",
-      "end_date"  : "2024-12-31",
-      "github": "https://github.com/technex-iit-bhu/events/event2.md"
-    }
-  ]
-}
-```
-
-### Structure:
-```go
-func BulkUpdateEvents(c *fiber.Ctx) error
-```
-- Parses the request body to get the list of events.
-- Updates each event in the MongoDB collection by its `ObjectID`.
-- Returns a success message indicating the events were updated.
-
-### Response:
-```json
-{
-  "message": "Events updated successfully"
 }
 ```

@@ -5,14 +5,16 @@
       "sub-description"  : "sub-description",
       "start_date" : "2024-12-01",
       "end_date"  : "2024-12-31",
-      "description" : "event 1 description"
+      "description" : "event 1 description",
+      "github": "https://github.com/technex-iit-bhu/events/event1.md"
     },
     {
       "title" : "event 2",
       "sub-description"  : "sub-description",
       "start_date" : "2024-12-01",
       "end_date"  : "2024-12-31",
-      "description" : "event 2 description"
+      "description" : "event 2 description",
+      "github": "https://github.com/technex-iit-bhu/events/event2.md"
     }
   ]
 }

@@ -31,7 +31,7 @@ func Route(app *fiber.App) {
 	events.Get("/:name", event_handler.GetEventDetails)
 	events.Get("/:id", event_handler.GetEventByID)
 	events.Post("/insertEvent", event_handler.InsertEvent)
-	events.Post("insertEvents", event_handler.BulkInsertEvents)
+	events.Post("/insertEvents", event_handler.BulkInsertEvents)
 	events.Delete("/deleteEvent", event_handler.DeleteEvent)
 	events.Patch("/updateEvent", event_handler.UpdateEvent)
 }
