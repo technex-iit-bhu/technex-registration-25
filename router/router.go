@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"technexRegistration/handler"
 	user_handler "technexRegistration/handler/user"
+	event_handler "technexRegistration/handler/events"
 )
 
 func Route(app *fiber.App) {
@@ -24,4 +25,9 @@ func Route(app *fiber.App) {
 	user.Patch("/update", user_handler.UpdateDetails)
 	user.Get("/recovery/:username", user_handler.SendRecoveryEmail)
 	user.Post("/verify_recovery_and_update_password", user_handler.UpdatePassword)
+
+	events := api.Group("/events")
+	events.Get("/", event_handler.GetAllEvents)
+	events.Get("/:name", event_handler.GetEventDetails)
+	events.Post("/insertEvent", event_handler.InsertEvent)
 }
