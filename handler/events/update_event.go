@@ -2,12 +2,12 @@ package events
 
 import (
 	"context"
-	"technexRegistration/database"
-	"technexRegistration/models"
-	"technexRegistration/utils"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"technexRegistration/database"
+	"technexRegistration/models"
+	"technexRegistration/utils"
 )
 
 func UpdateEvent(c *fiber.Ctx) error {
@@ -54,7 +54,6 @@ func UpdateEvent(c *fiber.Ctx) error {
 		return utils.ResponseMsg(c, 400, "No fields to update", nil)
 	}
 
-	
 	if _, err := db.Collection("events").UpdateByID(ctx, objID, bson.M{"$set": update}); err != nil {
 		return utils.ResponseMsg(c, 400, "Update failed", nil)
 	} else {

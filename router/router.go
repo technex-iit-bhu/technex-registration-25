@@ -5,8 +5,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"technexRegistration/handler"
-	user_handler "technexRegistration/handler/user"
 	event_handler "technexRegistration/handler/events"
+	user_handler "technexRegistration/handler/user"
 )
 
 func Route(app *fiber.App) {
@@ -29,5 +29,9 @@ func Route(app *fiber.App) {
 	events := api.Group("/events")
 	events.Get("/", event_handler.GetAllEvents)
 	events.Get("/:name", event_handler.GetEventDetails)
+	events.Get("/:id", event_handler.GetEventByID)
 	events.Post("/insertEvent", event_handler.InsertEvent)
+	events.Post("insertEvents", event_handler.BulkInsertEvents)
+	events.Delete("/deleteEvent", event_handler.DeleteEvent)
+	events.Patch("/updateEvent", event_handler.UpdateEvent)
 }
