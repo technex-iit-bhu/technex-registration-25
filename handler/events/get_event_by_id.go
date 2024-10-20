@@ -25,9 +25,14 @@ func GetEventByID(c *fiber.Ctx) error {
 	}
 
 	event := new(models.Event)
-	err = db.Collection("events").FindOne(ctx, bson.M{"_id": objID}).Decode(&event)
-	if err != nil {
-		return utils.ResponseMsg(c, 404, "Event not found", nil)
+	
+	if err := c.BodyParser(event); err != nil {
+		return utils.ResponseMsg(c, 400, "Error parsing body", nil)
+	} else {
+		err = db.Collection("events").FindOne(ctx, bson.D{{Key: "_id", Value: objID}}).Decode(&event)
+		if err != nil {
+			return utils.ResponseMsg(c, 404, "Event not found", nil)
+		}
 	}
 
 	return c.Status(200).JSON(fiber.Map{"event": event})

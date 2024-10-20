@@ -288,3 +288,82 @@ func BulkInsertEvents(c *fiber.Ctx) error
   "insertedIDs": ["ObjectID1", "ObjectID2"]
 }
 ```
+
+To support the new functionality of fetching multiple events by their IDs, you can add a new route in your router. Since the request requires passing multiple IDs, a `POST` route would be ideal because the list of IDs will be sent in the request body.
+
+Here is the suggested route:
+
+### New Route for Fetching Multiple Events by IDs:
+Add the following line in your `Route` function to define a new route for the `GetEventsByID` handler:
+
+```go
+events.Post("/getEventsByIds", event_handler.GetEventsByID)
+```
+
+### Updated Router:
+```go
+events := api.Group("/events")
+events.Get("/", event_handler.GetAllEvents)
+events.Get("/:name", event_handler.GetEventDetails)
+events.Get("/:id", event_handler.GetEventByID)
+events.Post("/insertEvent", event_handler.InsertEvent)
+events.Post("/insertEvents", event_handler.BulkInsertEvents)
+events.Post("/getEventsByIds", event_handler.GetEventsByID) // New route for fetching multiple events by IDs
+events.Delete("/deleteEvent", event_handler.DeleteEvent)
+events.Patch("/updateEvent", event_handler.UpdateEvent)
+```
+
+### Documentation to be Appended:
+
+---
+
+## Get Events by IDs
+
+### Route:
+`POST /events/getEventsByIds`
+
+### Description:
+This handler retrieves multiple events based on their MongoDB ObjectIDs provided in the request body.
+
+### Request Body:
+```json
+{
+  "ids": ["ObjectID1", "ObjectID2", "ObjectID3"]
+}
+```
+
+### Structure:
+```go
+func GetEventsByID(c *fiber.Ctx) error
+```
+- Parses the request body to get the list of event IDs.
+- Converts the IDs from string format to MongoDB ObjectIDs.
+- Queries the MongoDB collection for the events matching the provided IDs.
+- Returns the list of events found.
+- Body Format of Ids is as follow : `{"ids": ["id1", "id2", "id3"]}`
+
+### Response:
+```json
+{
+  "events": [
+    {
+      "id": "ObjectID1",
+      "title": "Event 1",
+      "description": "Event 1 Description",
+      "sub-description": "Additional Information",
+      "start_date": "2024-12-01",
+      "end_date": "2024-12-31",
+      "github": "https://github.com/technex-iit-bhu/events/event1.md"
+    },
+    {
+      "id": "ObjectID2",
+      "title": "Event 2",
+      "description": "Event 2 Description",
+      "sub-description": "Additional Information",
+      "start_date": "2024-12-01",
+      "end_date": "2024-12-31",
+      "github": "https://github.com/technex-iit-bhu/events/event2.md"
+    }
+  ]
+}
+``` 

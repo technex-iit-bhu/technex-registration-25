@@ -54,9 +54,14 @@ func UpdateEvent(c *fiber.Ctx) error {
 		return utils.ResponseMsg(c, 400, "No fields to update", nil)
 	}
 
-	if _, err := db.Collection("events").UpdateByID(ctx, objID, bson.M{"$set": update}); err != nil {
-		return utils.ResponseMsg(c, 400, "Update failed", nil)
+	
+	if err := c.BodyParser(event); err != nil {
+		return utils.ResponseMsg(c, 400, "Error parsing body", nil)
 	} else {
-		return c.Status(200).JSON(fiber.Map{"message": "user updated successfully"})
+		if _, err := db.Collection("events").UpdateByID(ctx, objID, bson.D{{Key: "$set", Value: update}}); err != nil {
+			return utils.ResponseMsg(c, 400, "Update failed", nil)
+		} else {
+			return c.Status(200).JSON(fiber.Map{"message": "user updated successfully"})
+		}
 	}
 }
