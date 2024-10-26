@@ -2,19 +2,11 @@ package events
 
 import (
 	"context"
+	"technexRegistration/database"
+	"technexRegistration/models"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
-	"technexRegistration/database"
-	"time"
 )
-
-type Event struct {
-	ID         string    `json:"id" bson:"_id,omitempty"`
-	Name       string    `json:"name" bson:"name"`
-	Desc       string    `json:"desc" bson:"description"`
-	Start_Date time.Time `json:"sDate" bson:"startDate"`
-	End_Date   time.Time `json:"eDate" bson:"endDate"`
-}
 
 func GetAllEvents(c *fiber.Ctx) error {
 	var ctx = context.Background()
@@ -35,10 +27,10 @@ func GetAllEvents(c *fiber.Ctx) error {
 	}
 	defer cursor.Close(ctx)
 
-	var events []Event
+	var events []models.Event
 
 	for cursor.Next(ctx) {
-		var event Event
+		var event models.Event
 		if err := cursor.Decode(&event); err != nil {
 			return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 		}
