@@ -1,0 +1,10 @@
+{
+  "title" : "workshops",
+  "workshop" : [
+    {
+      "name" : "workshop 1",
+      "Description" : "Description of Workshop 1",
+      "imageURL" : "imageurl.com"
+    }
+  ]
+}
