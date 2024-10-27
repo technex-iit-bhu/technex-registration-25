@@ -33,32 +33,34 @@ func UpdateEvent(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 	}
 
-	update := bson.M{}
+	updatedWorkshop := bson.M{}
 	if event.Name != "" {
-		update["name"] = event.Name
+		updatedWorkshop["name"] = event.Name
 	}
-	if event.Desc != "" {
-		update["description"] = event.Desc
+	if event.Description != "" {
+		updatedWorkshop["description"] = event.Description
 	}
 	if !event.Start_Date.IsZero() {
-		update["startDate"] = event.Start_Date
+		updatedWorkshop["startDate"] = event.Start_Date
 	}
 	if !event.End_Date.IsZero() {
-		update["endDate"] = event.End_Date
+		updatedWorkshop["endDate"] = event.End_Date
 	}
 	if event.Github != "" {
-		update["github"] = event.Github
+		updatedWorkshop["github"] = event.Github
+	}
+	if event.SubDescription != "" {
+		updatedWorkshop["sub_description"] = event.SubDescription
 	}
 
-	if len(update) == 0 {
+	if len(updatedWorkshop) == 0 {
 		return utils.ResponseMsg(c, 400, "No fields to update", nil)
 	}
 
-	
 	if err := c.BodyParser(event); err != nil {
 		return utils.ResponseMsg(c, 400, "Error parsing body", nil)
 	} else {
-		if _, err := db.Collection("events").UpdateByID(ctx, objID, bson.D{{Key: "$set", Value: update}}); err != nil {
+		if _, err := db.Collection("events").UpdateByID(ctx, objID, bson.D{{Key: "$set", Value: updatedWorkshop}}); err != nil {
 			return utils.ResponseMsg(c, 400, "Update failed", nil)
 		} else {
 			return c.Status(200).JSON(fiber.Map{"message": "user updated successfully"})

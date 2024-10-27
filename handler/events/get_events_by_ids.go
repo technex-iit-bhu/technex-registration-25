@@ -2,12 +2,12 @@ package events
 
 import (
 	"context"
-	"technexRegistration/database"
-	"technexRegistration/models"
-	"technexRegistration/utils"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"technexRegistration/database"
+	"technexRegistration/models"
+	"technexRegistration/utils"
 )
 
 func GetEventsByID(c *fiber.Ctx) error {

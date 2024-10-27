@@ -2,10 +2,10 @@ package events
 
 import (
 	"context"
+	"github.com/gofiber/fiber/v2"
 	"technexRegistration/database"
 	"technexRegistration/models"
 	"technexRegistration/utils"
-	"github.com/gofiber/fiber/v2"
 )
 
 func BulkInsertEvents(c *fiber.Ctx) error {

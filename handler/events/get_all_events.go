@@ -2,10 +2,10 @@ package events
 
 import (
 	"context"
-	"technexRegistration/database"
-	"technexRegistration/models"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
+	"technexRegistration/database"
+	"technexRegistration/models"
 )
 
 func GetAllEvents(c *fiber.Ctx) error {
