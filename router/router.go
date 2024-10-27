@@ -36,7 +36,7 @@ func Route(app *fiber.App) {
 	events.Post("/insertEvents", event_handler.BulkInsertEvents)
 	events.Delete("/deleteEvent", event_handler.DeleteEvent)
 	events.Patch("/updateEvent", event_handler.UpdateEvent)
-	
+
 	workshops := api.Group("/workshops")
 	workshops.Get("/", workshop_handler.GetAllWorkshops)
 	workshops.Get("/:name", workshop_handler.GetWorkshopDetails)
@@ -46,5 +46,5 @@ func Route(app *fiber.App) {
 	workshops.Post("/insertWorkshops", workshop_handler.BulkInsertWorkshops)
 	workshops.Delete("/deleteWorkshop", workshop_handler.DeleteWorkshop)
 	workshops.Patch("/updateWorkshop", workshop_handler.UpdateWorkshop)
-	
+
 }
