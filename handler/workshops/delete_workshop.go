@@ -41,4 +41,6 @@ func DeleteWorkshop(c *fiber.Ctx) error {
 			return utils.ResponseMsg(c, 404, "Workshop not found", nil)
 		}
 	}
+	
+	return c.Status(200).JSON(fiber.Map{"deleted workshop": workshop})
 }

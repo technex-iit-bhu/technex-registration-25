@@ -2,10 +2,10 @@ package workshops
 
 import (
 	"context"
-	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
 	"technexRegistration/database"
 	"technexRegistration/models"
+	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func GetAllWorkshops(c *fiber.Ctx) error {
@@ -19,7 +19,7 @@ func GetAllWorkshops(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 	}
-
+	
 	cursor, err := db.Collection("workshops").Find(ctx, bson.M{})
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
