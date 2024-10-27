@@ -7,6 +7,7 @@ import (
 	"technexRegistration/handler"
 	event_handler "technexRegistration/handler/events"
 	user_handler "technexRegistration/handler/user"
+	workshop_handler "technexRegistration/handler/workshops"
 )
 
 func Route(app *fiber.App) {
@@ -35,4 +36,15 @@ func Route(app *fiber.App) {
 	events.Post("/insertEvents", event_handler.BulkInsertEvents)
 	events.Delete("/deleteEvent", event_handler.DeleteEvent)
 	events.Patch("/updateEvent", event_handler.UpdateEvent)
+	
+	workshops := api.Group("/workshops")
+	workshops.Get("/", workshop_handler.GetAllWorkshops)
+	workshops.Get("/:name", workshop_handler.GetWorkshopDetails)
+	workshops.Get("/:id", workshop_handler.GetWorkshopByID)
+	workshops.Post("/getWorkshops", workshop_handler.GetWorkshopsByID)
+	workshops.Post("/insertWorkshop", workshop_handler.InsertWorkshop)
+	workshops.Post("/insertWorkshops", workshop_handler.BulkInsertWorkshops)
+	workshops.Delete("/deleteWorkshop", workshop_handler.DeleteWorkshop)
+	workshops.Patch("/updateWorkshop", workshop_handler.UpdateWorkshop)
+	
 }
