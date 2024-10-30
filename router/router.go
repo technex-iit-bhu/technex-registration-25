@@ -11,10 +11,11 @@ import (
 )
 
 func Route(app *fiber.App) {
-
+	
+	app.Use(cors.New())
 	app.Get("/", handler.Hello)
 	api := app.Group("/api", logger.New())
-	app.Use(cors.New())
+	api.Get("/", handler.HelloAPI)
 
 	user := api.Group("/user")
 	user.Post("/register", user_handler.CreateUsers)
@@ -29,9 +30,8 @@ func Route(app *fiber.App) {
 
 	events := api.Group("/events")
 	events.Get("/", event_handler.GetAllEvents)
-	events.Get("/:name", event_handler.GetEventDetails)
-	events.Get("/:id", event_handler.GetEventByID)
-	events.Post("/getEvents", event_handler.GetEventsByID)
+	events.Get("/getEvent", event_handler.GetEventDetails)
+	events.Get("/getEventByID", event_handler.GetEventByID)
 	events.Post("/insertEvent", event_handler.InsertEvent)
 	events.Post("/insertEvents", event_handler.BulkInsertEvents)
 	events.Delete("/deleteEvent", event_handler.DeleteEvent)
@@ -39,9 +39,8 @@ func Route(app *fiber.App) {
 
 	workshops := api.Group("/workshops")
 	workshops.Get("/", workshop_handler.GetAllWorkshops)
-	workshops.Get("/:name", workshop_handler.GetWorkshopDetails)
-	workshops.Get("/:id", workshop_handler.GetWorkshopByID)
-	workshops.Post("/getWorkshops", workshop_handler.GetWorkshopsByID)
+	workshops.Get("/getWorkshop", workshop_handler.GetWorkshopDetails)
+	workshops.Get("/getWorkshopByID", workshop_handler.GetWorkshopByID)
 	workshops.Post("/insertWorkshop", workshop_handler.InsertWorkshop)
 	workshops.Post("/insertWorkshops", workshop_handler.BulkInsertWorkshops)
 	workshops.Delete("/deleteWorkshop", workshop_handler.DeleteWorkshop)

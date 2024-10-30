@@ -5,5 +5,15 @@ import (
 )
 
 func Hello(c *fiber.Ctx) error {
-	return c.Status(200).JSON(fiber.Map{"message": "Hello World"})
+	return c.Status(200).JSON(fiber.Map{
+		"code" : 200,
+		"message": "Backend is Running",
+	})
+}
+
+func HelloAPI(c *fiber.Ctx) error {
+	return c.Status(200).JSON(fiber.Map{
+		"code" : 200,
+		"message": "API is running",
+	})
 }
