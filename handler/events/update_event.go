@@ -35,22 +35,22 @@ func UpdateEvent(c *fiber.Ctx) error {
 
 	updatedEvent := bson.D{}
 	if event.Name != "" {
-		updatedEvent = append(updatedEvent, bson.E{Key : "name", Value : event.Name})
+		updatedEvent = append(updatedEvent, bson.E{Key: "name", Value: event.Name})
 	}
 	if event.Description != "" {
-		updatedEvent = append(updatedEvent, bson.E{Key : "description", Value : event.Description})
+		updatedEvent = append(updatedEvent, bson.E{Key: "description", Value: event.Description})
 	}
 	if event.Start_Date.IsZero() {
-		updatedEvent = append(updatedEvent, bson.E{Key : "startDate", Value : event.Start_Date})
+		updatedEvent = append(updatedEvent, bson.E{Key: "startDate", Value: event.Start_Date})
 	}
 	if event.End_Date.IsZero() {
-		updatedEvent = append(updatedEvent, bson.E{Key : "endDate", Value : event.End_Date})
+		updatedEvent = append(updatedEvent, bson.E{Key: "endDate", Value: event.End_Date})
 	}
 	if event.SubDescription != "" {
-		updatedEvent = append(updatedEvent, bson.E{Key : "sub_description", Value : event.SubDescription})
+		updatedEvent = append(updatedEvent, bson.E{Key: "sub_description", Value: event.SubDescription})
 	}
 	if event.Github != "" {
-		updatedEvent = append(updatedEvent, bson.E{Key : "github", Value : event.Github})
+		updatedEvent = append(updatedEvent, bson.E{Key: "github", Value: event.Github})
 	}
 
 	if len(updatedEvent) == 0 {

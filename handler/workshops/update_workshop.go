@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"technexRegistration/database"
 	"technexRegistration/models"
 	"technexRegistration/utils"
@@ -35,30 +36,30 @@ func UpdateWorkshop(c *fiber.Ctx) error {
 	updatedWorkshop := bson.D{}
 
 	if workshop.Name != "" {
-		updatedWorkshop = append(updatedWorkshop, bson.E{Key : "name", Value : workshop.Name})
+		updatedWorkshop = append(updatedWorkshop, bson.E{Key: "name", Value: workshop.Name})
 	}
 	if workshop.Description != "" {
-		updatedWorkshop = append(updatedWorkshop, bson.E{Key : "description", Value : workshop.Description})
+		updatedWorkshop = append(updatedWorkshop, bson.E{Key: "description", Value: workshop.Description})
 	}
 	if workshop.Start_Date.IsZero() {
-		updatedWorkshop = append(updatedWorkshop, bson.E{Key : "startDate", Value : workshop.Start_Date})
+		updatedWorkshop = append(updatedWorkshop, bson.E{Key: "startDate", Value: workshop.Start_Date})
 	}
 	if workshop.End_Date.IsZero() {
-		updatedWorkshop = append(updatedWorkshop, bson.E{Key : "endDate", Value : workshop.End_Date})
+		updatedWorkshop = append(updatedWorkshop, bson.E{Key: "endDate", Value: workshop.End_Date})
 	}
 	if workshop.SubDescription != "" {
-		updatedWorkshop = append(updatedWorkshop, bson.E{Key : "sub_description", Value : workshop.SubDescription})
+		updatedWorkshop = append(updatedWorkshop, bson.E{Key: "sub_description", Value: workshop.SubDescription})
 	}
 	if workshop.Github != "" {
-		updatedWorkshop = append(updatedWorkshop, bson.E{Key : "github", Value : workshop.Github})
+		updatedWorkshop = append(updatedWorkshop, bson.E{Key: "github", Value: workshop.Github})
 	}
 
 	if len(updatedWorkshop) == 0 {
 		return utils.ResponseMsg(c, 400, "No fields to update", nil)
 	}
 
-	filter := bson.D{{Key : "_id",Value : objID}}
-	update := bson.D{{Key : "$set", Value : updatedWorkshop}}
+	filter := bson.D{{Key: "_id", Value: objID}}
+	update := bson.D{{Key: "$set", Value: updatedWorkshop}}
 
 	result := db.Collection("workshops").FindOneAndUpdate(ctx, filter, update)
 	if result.Err() != nil {

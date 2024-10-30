@@ -12,10 +12,6 @@ import (
 func GetWorkshopDetails(c *fiber.Ctx) error {
 	workshop := new(models.Workshop)
 	var ctx = context.Background()
-	token := c.Get("Authorization")[7:]
-	if token == "" {
-		return c.Status(401).JSON(fiber.Map{"message": "Unauthorized"})
-	}
 
 	db, err := database.Connect()
 
@@ -27,7 +23,7 @@ func GetWorkshopDetails(c *fiber.Ctx) error {
 		return utils.ResponseMsg(c, 400, err.Error(), nil)
 	}
 
-	filter := bson.D{{Key : "name", Value : workshop.Name}}
+	filter := bson.D{{Key: "name", Value: workshop.Name}}
 	var foundWorkshop models.Workshop
 	err = db.Collection("workshops").FindOne(ctx, filter).Decode(&foundWorkshop)
 	if err != nil {

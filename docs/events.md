@@ -25,7 +25,7 @@ This handler allows you to create a new event by providing the event details in 
 ### Request Body:
 ```json
 {
-  "title": "Event Title",
+  "name": "Event Name",
   "description": "Event Description",
   "sub-description": "Additional Information",
   "start_date": "2024-12-01",
@@ -61,7 +61,7 @@ func InsertEvent(c *fiber.Ctx) error
 This handler retrieves a specific event based on its name.
 
 ### Parameters:
-- `name`: The title of the event to retrieve.
+- `name`: The name of the event to retrieve.
 
 ### Structure:
 ```go
@@ -75,7 +75,7 @@ func GetEventDetails(c *fiber.Ctx) error
 ```json
 {
   "event": {
-    "title": "Event Title",
+    "name": "Event Name",
     "description": "Event Description",
     "sub-description": "Additional Information",
     "start_date": "2024-12-01",
@@ -111,7 +111,7 @@ func GetEventByID(c *fiber.Ctx) error
 {
   "event": {
     "id": "ObjectID",
-    "title": "Event Title",
+    "name": "Event Name",
     "description": "Event Description",
     "sub-description": "Additional Information",
     "start_date": "2024-12-01",
@@ -144,7 +144,7 @@ func GetAllEvents(c *fiber.Ctx) error
   "events": [
     {
       "id": "ObjectID",
-      "title": "Event 1",
+      "name": "Event 1",
       "description": "Event 1 Description",
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",
@@ -153,7 +153,7 @@ func GetAllEvents(c *fiber.Ctx) error
     },
     {
       "id": "ObjectID",
-      "title": "Event 2",
+      "name": "Event 2",
       "description": "Event 2 Description",
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",
@@ -180,7 +180,7 @@ This handler updates an existing event by its MongoDB ObjectID. Only the fields 
 ### Request Body:
 ```json
 {
-  "title": "Updated Event Title",
+  "name": "Updated Event Name",
   "description": "Updated Event Description",
   "sub-description": "Updated Information",
   "start_date": "2024-12-01",
@@ -218,7 +218,7 @@ This handler deletes an event by its name.
 ### Request Body:
 ```json
 {
-  "name": "Event Title"
+  "name": "Event Name"
 }
 ```
 
@@ -235,7 +235,7 @@ func DeleteEvent(c *fiber.Ctx) error
 {
   "message": "Event deleted",
   "deleted": 1,
-  "name": "Event Title"
+  "name": "Event Name"
 }
 ```
 
@@ -254,7 +254,7 @@ This handler allows inserting multiple events in bulk.
 {
   "events": [
     {
-      "title": "Event 1",
+      "name": "Event 1",
       "description": "Event 1 Description",
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",
@@ -262,7 +262,7 @@ This handler allows inserting multiple events in bulk.
       "github": "https://github.com/technex-iit-bhu/events/event1.md"
     },
     {
-      "title": "Event 2",
+      "name": "Event 2",
       "description": "Event 2 Description",
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",
@@ -348,7 +348,7 @@ func GetEventsByID(c *fiber.Ctx) error
   "events": [
     {
       "id": "ObjectID1",
-      "title": "Event 1",
+      "name": "Event 1",
       "description": "Event 1 Description",
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",
@@ -357,7 +357,7 @@ func GetEventsByID(c *fiber.Ctx) error
     },
     {
       "id": "ObjectID2",
-      "title": "Event 2",
+      "name": "Event 2",
       "description": "Event 2 Description",
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",

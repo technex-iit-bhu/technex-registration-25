@@ -12,10 +12,6 @@ import (
 func GetEventDetails(c *fiber.Ctx) error {
 	event := new(models.Event)
 	var ctx = context.Background()
-	token := c.Get("Authorization")[7:]
-	if token == "" {
-		return c.Status(401).JSON(fiber.Map{"message": "Unauthorized"})
-	}
 
 	db, err := database.Connect()
 
@@ -27,7 +23,7 @@ func GetEventDetails(c *fiber.Ctx) error {
 		return utils.ResponseMsg(c, 400, err.Error(), nil)
 	}
 
-	filter := bson.D{{Key : "name", Value : event.Name}}
+	filter := bson.D{{Key: "name", Value: event.Name}}
 	var foundEvent models.Event
 	err = db.Collection("events").FindOne(ctx, filter).Decode(&foundEvent)
 	if err != nil {

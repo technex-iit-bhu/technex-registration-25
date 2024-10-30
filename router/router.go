@@ -12,9 +12,9 @@ import (
 
 func Route(app *fiber.App) {
 
+	app.Get("/", handler.Hello)
 	api := app.Group("/api", logger.New())
 	app.Use(cors.New())
-	api.Get("/", handler.Hello)
 
 	user := api.Group("/user")
 	user.Post("/register", user_handler.CreateUsers)

@@ -25,7 +25,7 @@ This handler allows you to create a new workshop by providing the workshop detai
 ### Request Body:
 ```json
 {
-  "title": "Workshop Title",
+  "name": "Workshop Name",
   "description": "Workshop Description",
   "sub-description": "Additional Information",
   "start_date": "2024-12-01",
@@ -61,7 +61,7 @@ func InsertWorkshop(c *fiber.Ctx) error
 This handler retrieves a specific workshop based on its name.
 
 ### Parameters:
-- `name`: The title of the workshop to retrieve.
+- `name`: The name of the workshop to retrieve.
 
 ### Structure:
 ```go
@@ -75,7 +75,7 @@ func GetWorkshopDetails(c *fiber.Ctx) error
 ```json
 {
   "workshop": {
-    "title": "Workshop Title",
+    "name": "Workshop Name",
     "description": "Workshop Description",
     "sub-description": "Additional Information",
     "start_date": "2024-12-01",
@@ -111,7 +111,7 @@ func GetWorkshopByID(c *fiber.Ctx) error
 {
   "workshop": {
     "id": "ObjectID",
-    "title": "Workshop Title",
+    "name": "Workshop Name",
     "description": "Workshop Description",
     "sub-description": "Additional Information",
     "start_date": "2024-12-01",
@@ -144,7 +144,7 @@ func GetAllWorkshops(c *fiber.Ctx) error
   "workshops": [
     {
       "id": "ObjectID",
-      "title": "Workshop 1",
+      "name": "Workshop 1",
       "description": "Workshop 1 Description",
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",
@@ -153,7 +153,7 @@ func GetAllWorkshops(c *fiber.Ctx) error
     },
     {
       "id": "ObjectID",
-      "title": "Workshop 2",
+      "name": "Workshop 2",
       "description": "Workshop 2 Description",
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",
@@ -180,7 +180,7 @@ This handler updates an existing workshop by its MongoDB ObjectID. Only the fiel
 ### Request Body:
 ```json
 {
-  "title": "Updated Workshop Title",
+  "name": "Updated Workshop Name",
   "description": "Updated Workshop Description",
   "sub-description": "Updated Information",
   "start_date": "2024-12-01",
@@ -218,7 +218,7 @@ This handler deletes an workshop by its name.
 ### Request Body:
 ```json
 {
-  "name": "Workshop Title"
+  "name": "Workshop Name"
 }
 ```
 
@@ -235,7 +235,7 @@ func DeleteWorkshop(c *fiber.Ctx) error
 {
   "message": "Workshop deleted",
   "deleted": 1,
-  "name": "Workshop Title"
+  "name": "Workshop Name"
 }
 ```
 
@@ -254,7 +254,7 @@ This handler allows inserting multiple workshops in bulk.
 {
   "workshops": [
     {
-      "title": "Workshop 1",
+      "name": "Workshop 1",
       "description": "Workshop 1 Description",
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",
@@ -262,7 +262,7 @@ This handler allows inserting multiple workshops in bulk.
       "github": "https://github.com/technex-iit-bhu/workshops/workshop1.md"
     },
     {
-      "title": "Workshop 2",
+      "name": "Workshop 2",
       "description": "Workshop 2 Description",
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",
@@ -348,7 +348,7 @@ func GetWorkshopsByID(c *fiber.Ctx) error
   "workshops": [
     {
       "id": "ObjectID1",
-      "title": "Workshop 1",
+      "name": "Workshop 1",
       "description": "Workshop 1 Description",
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",
@@ -357,7 +357,7 @@ func GetWorkshopsByID(c *fiber.Ctx) error
     },
     {
       "id": "ObjectID2",
-      "title": "Workshop 2",
+      "name": "Workshop 2",
       "description": "Workshop 2 Description",
       "sub-description": "Additional Information",
       "start_date": "2024-12-01",

@@ -1,12 +1,11 @@
 {
-  "title" : "workshops",
-  "workshop" : [
+  "workshops": [
     {
-      "name" : "workshop 1",
-      "sub-description"  : "sub-description",
-      "start_date" : "2024-12-01",
-      "end_date"  : "2024-12-31",
-      "description" : "workshop 1 description",
+      "id": "6721fa4ccaad21a34530e7c4",
+      "name": "workshop 1",
+      "desc": "workshop 1 description",
+      "sDate": "0001-01-01T00:00:00Z",
+      "eDate": "0001-01-01T00:00:00Z",
       "github": "https://github.com/technex-iit-bhu/workshops/workshop1.md"
     }
   ]

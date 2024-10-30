@@ -11,11 +11,6 @@ import (
 func GetAllEvents(c *fiber.Ctx) error {
 	var ctx = context.Background()
 
-	token := c.Get("Authorization")[7:]
-	if token == "" {
-		return c.Status(401).JSON(fiber.Map{"message": "Unauthorized"})
-	}
-
 	db, err := database.Connect()
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
