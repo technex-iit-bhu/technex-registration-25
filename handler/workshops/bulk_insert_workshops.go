@@ -10,7 +10,11 @@ import (
 
 func BulkInsertWorkshops(c *fiber.Ctx) error {
 	ctx := context.Background()
-
+	token := c.Get("Authorization")[7:]
+	if token == "" {
+		return c.Status(401).JSON(fiber.Map{"message": "Unauthorized"})
+	}
+	
 	var workshops []models.Workshop
 	if err := c.BodyParser(&workshops); err != nil {
 		return utils.ResponseMsg(c, 400, "Error parsing body", nil)
