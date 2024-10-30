@@ -20,7 +20,7 @@ func GetAllWorkshops(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 	}
 
-	cursor, err := db.Collection("workshops").Find(ctx, bson.M{})
+	cursor, err := db.Collection("workshops").Find(ctx, bson.D{})
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 	}

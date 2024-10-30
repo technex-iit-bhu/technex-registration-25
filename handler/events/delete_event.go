@@ -26,7 +26,7 @@ func DeleteEvent(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 	}
 
-	if r, err := db.Collection("events").DeleteOne(ctx, bson.M{"name": event.Name}); err != nil {
+	if r, err := db.Collection("events").DeleteOne(ctx, bson.D{{Key : "name", Value : event.Name}}); err != nil {
 		return utils.ResponseMsg(c, 400, "Delete failed", nil)
 	} else {
 		return c.Status(200).JSON(fiber.Map{

@@ -27,7 +27,7 @@ func GetEventDetails(c *fiber.Ctx) error {
 		return utils.ResponseMsg(c, 400, err.Error(), nil)
 	}
 
-	filter := bson.M{"name": event.Name}
+	filter := bson.D{{Key : "name", Value : event.Name}}
 	var foundEvent models.Event
 	err = db.Collection("events").FindOne(ctx, filter).Decode(&foundEvent)
 	if err != nil {

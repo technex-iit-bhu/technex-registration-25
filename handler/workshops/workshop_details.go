@@ -27,7 +27,7 @@ func GetWorkshopDetails(c *fiber.Ctx) error {
 		return utils.ResponseMsg(c, 400, err.Error(), nil)
 	}
 
-	filter := bson.M{"name": workshop.Name}
+	filter := bson.D{{Key : "name", Value : workshop.Name}}
 	var foundWorkshop models.Workshop
 	err = db.Collection("workshops").FindOne(ctx, filter).Decode(&foundWorkshop)
 	if err != nil {
