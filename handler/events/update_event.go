@@ -40,18 +40,6 @@ func UpdateEvent(c *fiber.Ctx) error {
 	if event.Description != "" {
 		updatedEvent = append(updatedEvent, bson.E{Key: "description", Value: event.Description})
 	}
-	if event.Start_Date.IsZero() {
-		updatedEvent = append(updatedEvent, bson.E{Key: "startDate", Value: event.Start_Date})
-	}
-	if event.End_Date.IsZero() {
-		updatedEvent = append(updatedEvent, bson.E{Key: "endDate", Value: event.End_Date})
-	}
-	if event.SubDescription != "" {
-		updatedEvent = append(updatedEvent, bson.E{Key: "sub_description", Value: event.SubDescription})
-	}
-	if event.Github != "" {
-		updatedEvent = append(updatedEvent, bson.E{Key: "github", Value: event.Github})
-	}
 
 	if len(updatedEvent) == 0 {
 		return utils.ResponseMsg(c, 400, "No fields to update", nil)
