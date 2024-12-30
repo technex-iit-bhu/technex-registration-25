@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Workshop struct {
+type SubWorkshop struct {
 	ID             primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	Name           string             `json:"name,omitempty" bson:"name,omitempty" binding:"required"`
 	Description    string             `json:"desc,omitempty" bson:"description,omitempty" binding:"required"`
@@ -13,4 +13,15 @@ type Workshop struct {
 	Start_Date     time.Time          `json:"sDate,omitempty" bson:"startDate,omitempty" binding:"required"`
 	End_Date       time.Time          `json:"eDate,omitempty" bson:"endDate,omitempty" binding:"required"`
 	Github         string             `json:"github,omitempty" bson:"github,omitempty" binding:"required"`
+}
+
+type Workshop struct {
+	ID          primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	Name        string            `json:"name,omitempty" bson:"name,omitempty" binding:"required"`
+	Description string            `json:"desc,omitempty" bson:"description,omitempty" binding:"required"`
+	SubWorkshops []SubWorkshop    `json:"subWorkshops,omitempty" bson:"subWorkshops,omitempty"`
+}
+
+type Workshops struct {
+	Workshop []Workshop `json:"workshops" bson:"workshops"`
 }

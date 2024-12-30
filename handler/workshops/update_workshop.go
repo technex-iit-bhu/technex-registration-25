@@ -17,15 +17,15 @@ func UpdateWorkshop(c *fiber.Ctx) error {
 		return c.Status(401).JSON(fiber.Map{"message": "Unauthorized"})
 	}
 
-	workshop := new(models.Workshop)
-	if err := c.BodyParser(workshop); err != nil {
-		return utils.ResponseMsg(c, 400, "Error parsing body", nil)
-	}
-
 	id := c.Params("id")
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return utils.ResponseMsg(c, 400, "Invalid ID", nil)
+	}
+
+	workshop := new(models.Workshop)
+	if err := c.BodyParser(workshop); err != nil {
+		return utils.ResponseMsg(c, 400, "Error parsing body", nil)
 	}
 
 	db, err := database.Connect()
@@ -34,37 +34,24 @@ func UpdateWorkshop(c *fiber.Ctx) error {
 	}
 
 	updatedWorkshop := bson.D{}
-
 	if workshop.Name != "" {
 		updatedWorkshop = append(updatedWorkshop, bson.E{Key: "name", Value: workshop.Name})
 	}
 	if workshop.Description != "" {
 		updatedWorkshop = append(updatedWorkshop, bson.E{Key: "description", Value: workshop.Description})
 	}
-	if workshop.Start_Date.IsZero() {
-		updatedWorkshop = append(updatedWorkshop, bson.E{Key: "startDate", Value: workshop.Start_Date})
-	}
-	if workshop.End_Date.IsZero() {
-		updatedWorkshop = append(updatedWorkshop, bson.E{Key: "endDate", Value: workshop.End_Date})
-	}
-	if workshop.SubDescription != "" {
-		updatedWorkshop = append(updatedWorkshop, bson.E{Key: "sub_description", Value: workshop.SubDescription})
-	}
-	if workshop.Github != "" {
-		updatedWorkshop = append(updatedWorkshop, bson.E{Key: "github", Value: workshop.Github})
-	}
 
 	if len(updatedWorkshop) == 0 {
 		return utils.ResponseMsg(c, 400, "No fields to update", nil)
 	}
 
-	filter := bson.D{{Key: "_id", Value: objID}}
-	update := bson.D{{Key: "$set", Value: updatedWorkshop}}
-
-	result := db.Collection("workshops").FindOneAndUpdate(ctx, filter, update)
-	if result.Err() != nil {
-		return utils.ResponseMsg(c, 500, "Failed to update", nil)
+	if err := c.BodyParser(workshop); err != nil {
+		return utils.ResponseMsg(c, 400, "Error parsing body", nil)
+	} else {
+		if _, err := db.Collection("workshops").UpdateByID(ctx, objID, bson.D{{Key: "$set", Value: updatedWorkshop}}); err != nil {
+			return utils.ResponseMsg(c, 400, "Update failed", nil)
+		} else {
+			return c.Status(200).JSON(fiber.Map{"message": "workshop updated successfully"})
+		}
 	}
-
-	return utils.ResponseMsg(c, 200, "Workshop updated successfully", nil)
 }

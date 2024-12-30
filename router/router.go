@@ -46,5 +46,5 @@ func Route(app *fiber.App) {
 	workshops.Post("/insertWorkshops", workshop_handler.BulkInsertWorkshops)
 	workshops.Delete("/deleteWorkshop", workshop_handler.DeleteWorkshop)
 	workshops.Patch("/updateWorkshop", workshop_handler.UpdateWorkshop)
-
+	workshops.Patch("/updateSubWorkshops/", workshop_handler.UpdateSubWorkshops)
 }
