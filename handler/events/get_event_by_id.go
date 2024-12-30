@@ -11,30 +11,30 @@ import (
 )
 
 func GetEventByID(c *fiber.Ctx) error {
-    ctx := context.Background()
+	ctx := context.Background()
 
-    reqBody := new(struct {
-        ID string `json:"id"`
-    })
-    if err := c.BodyParser(reqBody); err != nil {
-        return utils.ResponseMsg(c, 400, "Error parsing body", nil)
-    }
+	reqBody := new(struct {
+		ID string `json:"id"`
+	})
+	if err := c.BodyParser(reqBody); err != nil {
+		return utils.ResponseMsg(c, 400, "Error parsing body", nil)
+	}
 
-    objID, err := primitive.ObjectIDFromHex(reqBody.ID)
-    if err != nil {
-        return utils.ResponseMsg(c, 400, "Invalid ID", nil)
-    }
+	objID, err := primitive.ObjectIDFromHex(reqBody.ID)
+	if err != nil {
+		return utils.ResponseMsg(c, 400, "Invalid ID", nil)
+	}
 
-    db, err := database.Connect()
-    if err != nil {
-        return c.Status(500).JSON(fiber.Map{"message": err.Error()})
-    }
+	db, err := database.Connect()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
+	}
 
-    event := new(models.Event)
-    err = db.Collection("events").FindOne(ctx, bson.D{{Key: "_id", Value: objID}}).Decode(&event)
-    if err != nil {
-        return utils.ResponseMsg(c, 404, "Event not found", nil)
-    }
+	event := new(models.Event)
+	err = db.Collection("events").FindOne(ctx, bson.D{{Key: "_id", Value: objID}}).Decode(&event)
+	if err != nil {
+		return utils.ResponseMsg(c, 404, "Event not found", nil)
+	}
 
-    return c.Status(200).JSON(fiber.Map{"event": event})
+	return c.Status(200).JSON(fiber.Map{"event": event})
 }

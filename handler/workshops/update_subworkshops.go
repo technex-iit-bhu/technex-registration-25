@@ -30,8 +30,8 @@ func UpdateSubWorkshops(c *fiber.Ctx) error {
 
 	// Validate required fields for each subworkshop
 	for _, subWorkshop := range subWorkshops {
-		if subWorkshop.Name == "" || subWorkshop.Description == "" || subWorkshop.SubDescription == "" || 
-		   subWorkshop.Start_Date.IsZero() || subWorkshop.End_Date.IsZero() || subWorkshop.Github == "" {
+		if subWorkshop.Name == "" || subWorkshop.Description == "" || subWorkshop.SubDescription == "" ||
+			subWorkshop.Start_Date.IsZero() || subWorkshop.End_Date.IsZero() || subWorkshop.Github == "" {
 			return utils.ResponseMsg(c, 400, "Missing required fields in subworkshop", nil)
 		}
 	}

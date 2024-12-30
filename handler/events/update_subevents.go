@@ -30,8 +30,8 @@ func UpdateSubEvents(c *fiber.Ctx) error {
 
 	// Validate required fields for each subevent
 	for _, subEvent := range subEvents {
-		if subEvent.Name == "" || subEvent.Description == "" || subEvent.SubDescription == "" || 
-		   subEvent.Start_Date.IsZero() || subEvent.End_Date.IsZero() || subEvent.Github == "" {
+		if subEvent.Name == "" || subEvent.Description == "" || subEvent.SubDescription == "" ||
+			subEvent.Start_Date.IsZero() || subEvent.End_Date.IsZero() || subEvent.Github == "" {
 			return utils.ResponseMsg(c, 400, "Missing required fields in subevent", nil)
 		}
 	}

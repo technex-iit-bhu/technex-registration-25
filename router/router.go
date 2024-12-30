@@ -11,7 +11,7 @@ import (
 )
 
 func Route(app *fiber.App) {
-	
+
 	app.Use(cors.New())
 	app.Get("/", handler.Hello)
 	api := app.Group("/api", logger.New())
