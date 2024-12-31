@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	_ "fmt"
 	"log"
 	"technexRegistration/database"
 	"technexRegistration/router"
@@ -13,11 +11,8 @@ import (
 
 func main() {
 	app := fiber.New()
-	fmt.Println("Using CORS")
 	app.Use(cors.New())
-	fmt.Println("Initialising Routes")
 	router.Route(app)
-	fmt.Println("Init DB connections")
 	if err := database.Init(); err != nil {
 		log.Fatal("unable to connect to client")
 	}
