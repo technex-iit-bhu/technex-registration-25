@@ -2,12 +2,13 @@ package workshops
 
 import (
 	"context"
-	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"technexRegistration/database"
 	"technexRegistration/models"
 	"technexRegistration/utils"
+
+	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func UpdateSubWorkshops(c *fiber.Ctx) error {

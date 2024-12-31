@@ -1,13 +1,14 @@
 package router
 
 import (
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"technexRegistration/handler"
 	event_handler "technexRegistration/handler/events"
 	user_handler "technexRegistration/handler/user"
 	workshop_handler "technexRegistration/handler/workshops"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func Route(app *fiber.App) {
@@ -47,4 +48,5 @@ func Route(app *fiber.App) {
 	workshops.Delete("/deleteWorkshop", workshop_handler.DeleteWorkshop)
 	workshops.Patch("/updateWorkshop", workshop_handler.UpdateWorkshop)
 	workshops.Patch("/updateSubWorkshops/", workshop_handler.UpdateSubWorkshops)
+	workshops.Get("/subworkshops", workshop_handler.GetSubWorkshopsByID)
 }
