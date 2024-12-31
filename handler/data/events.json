@@ -9,8 +9,7 @@
           "desc": "event 1 description",
           "sub_desc": "sub-description",
           "sDate": "2024-12-01T00:00:00Z",
-          "eDate": "2024-12-31T00:00:00Z",
-          "github": "https://github.com/technex-iit-bhu/events/event1.md"
+          "eDate": "2024-12-31T00:00:00Z"
         }
       ]
     },
@@ -23,8 +22,7 @@
           "desc": "event 2 description",
           "sub_desc": "sub-description", 
           "sDate": "2024-12-01T00:00:00Z",
-          "eDate": "2024-12-31T00:00:00Z",
-          "github": "https://github.com/technex-iit-bhu/events/event2.md"
+          "eDate": "2024-12-31T00:00:00Z"
         }
       ]
     }

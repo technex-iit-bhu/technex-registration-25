@@ -1,12 +1,30 @@
 {
   "workshops": [
     {
-      "id": "6721fa4ccaad21a34530e7c4",
       "name": "workshop 1",
       "desc": "workshop 1 description",
-      "sDate": "0001-01-01T00:00:00Z",
-      "eDate": "0001-01-01T00:00:00Z",
-      "github": "https://github.com/technex-iit-bhu/workshops/workshop1.md"
+      "subWorkshops": [
+        {
+          "name": "subworkshop 1",
+          "desc": "workshop 1 description",
+          "sub_desc": "sub-description",
+          "sDate": "2024-12-01T00:00:00Z",
+          "eDate": "2024-12-31T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "name": "workshop 2", 
+      "desc": "workshop 2 description",
+      "subWorkshops": [
+        {
+          "name": "subworkshop 2",
+          "desc": "workshop 2 description",
+          "sub_desc": "sub-description", 
+          "sDate": "2024-12-01T00:00:00Z",
+          "eDate": "2024-12-31T00:00:00Z"
+        }
+      ]
     }
   ]
 }
