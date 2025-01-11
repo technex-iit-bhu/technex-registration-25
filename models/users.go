@@ -20,4 +20,5 @@ type Users struct {
 	Github       string             `json:"github,omitempty" bson:"github,omitempty"`
 	CreatedAt    time.Time          `json:"createdAt,omitempty" bson:"createdAt,omitempty" binding:"required"`
 	UpdatedAt    time.Time          `json:"updatedAt,omitempty" bson:"updatedAt,omitempty" binding:"required"`
+	TechnexID    string             `json:"technexId,omitempty" bson:"technexId,omitempty" binding:"required"`
 }
