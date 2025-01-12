@@ -1,13 +1,15 @@
 package router
 
 import (
+	"technexRegistration/handler"
+	event_handler "technexRegistration/handler/events"
+	payments_handler "technexRegistration/handler/payments"
+	user_handler "technexRegistration/handler/user"
+	workshop_handler "technexRegistration/handler/workshops"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"technexRegistration/handler"
-	event_handler "technexRegistration/handler/events"
-	user_handler "technexRegistration/handler/user"
-	workshop_handler "technexRegistration/handler/workshops"
 )
 
 func Route(app *fiber.App) {
@@ -49,4 +51,7 @@ func Route(app *fiber.App) {
 	workshops.Patch("/updateWorkshop", workshop_handler.UpdateWorkshop)
 	workshops.Patch("/updateSubWorkshops/", workshop_handler.UpdateSubWorkshops)
 	workshops.Get("/subworkshops", workshop_handler.GetSubWorkshops)
+
+	payments := api.Group("/payments")
+	payments.Post("/", payments_handler.CapturePayments)
 }

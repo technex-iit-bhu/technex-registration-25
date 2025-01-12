@@ -3,14 +3,15 @@ package user
 import (
 	"context"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"technexRegistration/database"
 	"technexRegistration/models"
 	"technexRegistration/utils"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func CreateUsers(c *fiber.Ctx) error {
@@ -43,9 +44,11 @@ func CreateUsers(c *fiber.Ctx) error {
 	zeroPadding := 4 - len(fmt.Sprintf("%d", currentNumber))
 	users.TechnexID = "TX25"
 	for i := 0; i < zeroPadding; i++ {
-		users.TechnexID+="0"
+		users.TechnexID += "0"
 	}
-	users.TechnexID+=fmt.Sprintf("%d",currentNumber)
+	users.TechnexID += fmt.Sprintf("%d", currentNumber)
+	// var registeredEvents []string
+	users.RegisteredEvents = []string{}
 
 	// Update the number in the 'num' collection
 	_, err = numCollection.UpdateOne(ctx, bson.M{}, bson.M{"$set": bson.M{"number": currentNumber}})
