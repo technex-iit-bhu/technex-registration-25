@@ -2,6 +2,7 @@ package payments
 
 import (
 	"context"
+	"slices"
 	"technexRegistration/database"
 	"technexRegistration/models"
 
@@ -46,6 +47,18 @@ var allEvents = []string{
 	"Astro-Quiz",
 }
 
+var allEventTickets = []string{
+	"Technex Early Bird Event Card",
+	"Technex Early Bird (Event + Food) Card",
+	"Test all events card",
+}
+
+var singleEventTickets = []string{
+	"Technex Single Event Card",
+	"Technex Single Event + Accomodation Card",
+	"Test single event card",
+}
+
 type TicketDetails struct {
 	TicketName string `json:"Ticket Name"`
 }
@@ -85,9 +98,9 @@ func CapturePayments(c *fiber.Ctx) error {
 
 	newItems := []string{}
 
-	if body.Data.AttDetails.Ticket.TicketName == "Test single event card" {
+	if slices.Contains(singleEventTickets, body.Data.AttDetails.Ticket.TicketName) {
 		newItems = []string{body.Data.AttDetails.Event}
-	} else if body.Data.AttDetails.Ticket.TicketName == "Test all events card" {
+	} else if slices.Contains(allEventTickets, body.Data.AttDetails.Ticket.TicketName) {
 		newItems = allEvents
 	}
 
