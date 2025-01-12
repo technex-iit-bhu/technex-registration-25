@@ -40,8 +40,11 @@ func CreateUsers(c *fiber.Ctx) error {
 	}
 
 	currentNumber := currentNum.Number + 1
-	zeroPadding := 5 - len(fmt.Sprintf("%d", currentNumber))
-	users.TechnexID = fmt.Sprintf("TX%s%d", string(make([]byte, zeroPadding)), currentNumber)
+	zeroPadding := 4 - len(fmt.Sprintf("%d", currentNumber))
+	users.TechnexID = "TX25"
+	for i := 0; i < zeroPadding; i++ {
+		users.TechnexID+="0"
+	}
 
 	// Update the number in the 'num' collection
 	_, err = numCollection.UpdateOne(ctx, bson.M{}, bson.M{"$set": bson.M{"number": currentNumber}})
