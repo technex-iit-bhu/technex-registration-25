@@ -46,10 +46,20 @@ func GetSubEventByName(c *fiber.Ctx) error {
             if sub.Name == subEventName {
                 fmt.Printf("Found subEvent '%s' in event '%s'\n", subEventName, event.Name)
                 return c.Status(200).JSON(fiber.Map{
-                    "subEvent": sub,
-                    "parentEvent": fiber.Map{
-                        "id":   event.ID,
-                        "name": event.Name,
+                    "subEvent": models.SubEvent{
+                        ID:             sub.ID,
+                        Name:           sub.Name,
+                        Description:    sub.Description,
+                        SubDescription: sub.SubDescription,
+                        Start_Date:     sub.Start_Date,
+                        End_Date:       sub.End_Date,
+                        Github:         sub.Github,
+                        ImgSrc:         sub.ImgSrc,
+                    },
+                    "parentEvent": models.Event{
+                        ID:          event.ID,
+                        Name:        event.Name,
+                        Description: event.Description,
                     },
                 })
             }
