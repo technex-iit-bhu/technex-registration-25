@@ -55,6 +55,9 @@ func GetSubEventByName(c *fiber.Ctx) error {
                         End_Date:       sub.End_Date,
                         Github:         sub.Github,
                         ImgSrc:         sub.ImgSrc,
+                        DriveLink:      sub.DriveLink,
+                        UnstopLink:     sub.UnstopLink,
+                        PrizeMoney:     sub.PrizeMoney,
                     },
                     "parentEvent": models.Event{
                         ID:          event.ID,
