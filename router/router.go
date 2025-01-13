@@ -40,6 +40,7 @@ func Route(app *fiber.App) {
 	events.Patch("/updateEvent", event_handler.UpdateEvent)
 	events.Patch("/updateSubEvents", event_handler.UpdateSubEvents)
 	events.Get("/subevents", event_handler.GetSubEvents)
+	events.Get("/subevent-by-name", event_handler.GetSubEventByName)
 
 	workshops := api.Group("/workshops")
 	workshops.Get("/", workshop_handler.GetAllWorkshops)
