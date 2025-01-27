@@ -51,12 +51,14 @@ var allEventTickets = []string{
 	"Technex Early Bird Event Card",
 	"Technex Early Bird (Event + Food) Card",
 	"Test all events card",
+	"Technex Events Card",
 }
 
 var singleEventTickets = []string{
 	"Technex Single Event Card",
 	"Technex Single Event + Accomodation Card",
 	"Test single event card",
+	"Technex (Event + Accommodation) Card",
 }
 
 type TicketDetails struct {
@@ -81,10 +83,6 @@ type Body struct {
 func CapturePayments(c *fiber.Ctx) error {
 	var body Body
 	c.BodyParser(&body)
-	// fmt.Println("email : ", body.Data.AttDetails.Email)
-	// fmt.Println("Technex ID : ", body.Data.AttDetails.TechnexId)
-	// fmt.Println("Event : ", body.Data.AttDetails.Event)
-	// return c.Status(200).JSON(fiber.Map{"message": "updated successfully"})
 
 	db, err := database.Connect()
 	if err != nil {
