@@ -2,17 +2,18 @@ package user
 
 import (
 	"context"
-	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
 	"technexRegistration/database"
 	"technexRegistration/models"
 	"technexRegistration/utils"
+
+	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func VerifyQR(c *fiber.Ctx) error {
 	var body struct {
 		QRToken   string `json:"qr_token" bson:"qr_token"`
-		eventName string `bson:"event_name"`
+		eventName string `json:"event_name" bson:"event_name"`
 	}
 
 	db, err := database.Connect()
