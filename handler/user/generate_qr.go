@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func GenerateQR(c *fiber.Ctx) error {
+func GenerateQ(c *fiber.Ctx) error {
 	var qrBody struct {
 		Username string `json:"username" bson:"username"`
 		Name string `json:"name" bson:"name"`
