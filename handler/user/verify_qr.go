@@ -13,7 +13,7 @@ import (
 func VerifyQR(c *fiber.Ctx) error {
 	var body struct {
 		QRToken   string `json:"qr_token" bson:"qr_token"`
-		eventName string `json:"event_name" bson:"event_name"`
+		EventName string `json:"event_name" bson:"event_name"`
 	}
 
 	db, err := database.Connect()
@@ -42,7 +42,7 @@ func VerifyQR(c *fiber.Ctx) error {
 
 	isRegistered := false
 	for _, event := range result.RegisteredEvents {
-		if event == body.eventName {
+		if event == body.EventName {
 			isRegistered = true
 			break
 		}
