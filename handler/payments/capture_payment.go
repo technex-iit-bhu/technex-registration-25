@@ -2,9 +2,9 @@ package payments
 
 import (
 	"context"
+	"fmt"
 	"slices"
 	"technexRegistration/database"
-	"technexRegistration/models"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
@@ -51,12 +51,14 @@ var allEventTickets = []string{
 	"Technex Early Bird Event Card",
 	"Technex Early Bird (Event + Food) Card",
 	"Test all events card",
+	"Technex Events Card",
 }
 
 var singleEventTickets = []string{
 	"Technex Single Event Card",
 	"Technex Single Event + Accomodation Card",
 	"Test single event card",
+	"Technex (Event + Accommodation) Card",
 }
 
 type TicketDetails struct {
@@ -78,41 +80,48 @@ type Body struct {
 	Data Details `json:"Data"`
 }
 
-func CapturePayments(c *fiber.Ctx) error {
-	var body Body
-	c.BodyParser(&body)
-	// fmt.Println("email : ", body.Data.AttDetails.Email)
-	// fmt.Println("Technex ID : ", body.Data.AttDetails.TechnexId)
-	// fmt.Println("Event : ", body.Data.AttDetails.Event)
-	// return c.Status(200).JSON(fiber.Map{"message": "updated successfully"})
-
-	db, err := database.Connect()
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
-	}
-	var user models.Users
-	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key: "technexId", Value: body.Data.AttDetails.TechnexId}}).Decode(&user)
-	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"message": "user does not exist"})
-	}
-
+func getEventsFromAttendeeDetails(AttDetails AttendeeDetails) []string {
 	newItems := []string{}
-
-	if slices.Contains(singleEventTickets, body.Data.AttDetails.Ticket.TicketName) {
-		newItems = []string{body.Data.AttDetails.Event}
-	} else if slices.Contains(allEventTickets, body.Data.AttDetails.Ticket.TicketName) {
+	if slices.Contains(singleEventTickets, AttDetails.Ticket.TicketName) {
+		newItems = []string{AttDetails.Event}
+	} else if slices.Contains(allEventTickets, AttDetails.Ticket.TicketName) {
 		newItems = allEvents
 	}
+	return newItems
+}
 
-	result, _ := db.Collection("users").UpdateOne(context.Background(), bson.D{{Key: "technexId", Value: body.Data.AttDetails.TechnexId}},
+func updateUserEvents(technexId string, newItems []string) error {
+	db, err := database.Connect()
+	if err != nil {
+		return err
+	}
+	result, err := db.Collection("users").UpdateOne(context.Background(), bson.D{{Key: "technexId", Value: technexId}},
 		bson.M{
 			"$addToSet": bson.M{
 				"registeredEvents": bson.M{
 					"$each": newItems,
 				},
 			}})
-	if result.MatchedCount == 0 {
-		return c.Status(404).JSON(fiber.Map{"message": "user does not exist"})
+	if err != nil {
+		return err
 	}
+	if result.MatchedCount == 0 {
+		return fmt.Errorf("user does not exist")
+	}
+	return nil
+
+}
+
+func CapturePayments(c *fiber.Ctx) error {
+	var body Body
+	c.BodyParser(&body)
+
+	newItems := getEventsFromAttendeeDetails(body.Data.AttDetails)
+
+	err := updateUserEvents(body.Data.AttDetails.TechnexId, newItems)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"message": err.Error()})
+	}
+
 	return c.Status(200).JSON(fiber.Map{"message": "user updated successfully"})
 }
