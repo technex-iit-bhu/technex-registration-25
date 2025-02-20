@@ -29,7 +29,7 @@ func VerifyQR(c *fiber.Ctx) error {
 
 	username, err := utils.DeserialiseQR(body.QRToken)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid QR token",
 		})
 	}
@@ -49,7 +49,7 @@ func VerifyQR(c *fiber.Ctx) error {
 	}
 
 	if !isRegistered {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+		return c.Status(401).JSON(fiber.Map{
 			"message": "User not registered for this event",
 		})
 	}
