@@ -1,13 +1,23 @@
 package user
 
 import (
+	"context"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
+	"technexRegistration/database"
+	"technexRegistration/models"
 	"technexRegistration/utils"
 )
 
 func VerifyQR(c *fiber.Ctx) error {
 	var body struct {
-		QRToken string `json:"qr_token"`
+		QRToken   string `json:"qr_token" bson:"qr_token"`
+		eventName string `bson:"event_name"`
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 	}
 
 	if err := c.BodyParser(&body); err != nil {
@@ -23,7 +33,30 @@ func VerifyQR(c *fiber.Ctx) error {
 		})
 	}
 
+	var result models.Users
+	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key: "username", Value: username}}).Decode(&result)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"message": "user does not exist"})
+	}
+
+	isRegistered := false
+	for _, event := range result.RegisteredEvents {
+		if event == body.eventName {
+			isRegistered = true
+			break
+		}
+	}
+
+	if !isRegistered {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "User not registered for this event",
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"username": username,
+		"message":  "User successfully verified for event",
+		"id":       result.ID,
+		"name":     result.Name,
+		"username": result.Username,
 	})
 }
