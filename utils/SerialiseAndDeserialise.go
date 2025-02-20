@@ -12,7 +12,7 @@ var serialKey = []byte(config.Config("JWT_SECRET"))
 var gmailKey = []byte(config.Config("GMAIL_SECRET"))
 var githubKey = []byte(config.Config("GITHUB_SECRET"))
 var recoveryKey = []byte(config.Config("RECOVERY_SECRET"))
-
+var qrKey = []byte(config.Config("QR_SECRET"))
 func SerialiseUser(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
@@ -27,6 +27,29 @@ func SerialiseUser(username string) (string, error) {
 func DeserialiseUser(signedToken string) (string, error) {
 	token, err := jwt.Parse(signedToken, func(token *jwt.Token) (interface{}, error) {
 		return []byte(serialKey), nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+	claims, _ := token.Claims.(jwt.MapClaims)
+	return claims["username"].(string), nil
+}
+
+func SerialiseQR(username string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"username": username,
+	})
+	signedToken, err := token.SignedString(qrKey)
+	if err != nil {
+		return "", err
+	}
+	return signedToken, nil
+}
+
+func DeserialiseQR(signedToken string) (string, error) {
+	token, err := jwt.Parse(signedToken, func(token *jwt.Token) (interface{}, error) {
+		return []byte(qrKey), nil
 	})
 
 	if err != nil {
