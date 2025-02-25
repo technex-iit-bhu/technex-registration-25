@@ -14,8 +14,9 @@ type SubEvent struct {
 	End_Date       time.Time          `json:"eDate,omitempty" bson:"endDate,omitempty" binding:"required"`
 	Github         string             `json:"github,omitempty" bson:"github,omitempty" binding:"required"`
 	ImgSrc         string             `json:"imgsrc,omitempty" bson:"imgsrc,omitempty" binding:"required"`
-	DriveLink      string              `json:"driveLink,omitempty" bson:"driveLink,omitempty" binding:"required"`
+	DriveLink      string             `json:"driveLink,omitempty" bson:"driveLink,omitempty" binding:"required"`
 	UnstopLink     string             `json:"unstopLink,omitempty" bson:"unstopLink,omitempty" binding:"required"`
+	LetterLink     string             `json:"letterLink,omitempty" bson:"letterLink,omitempty" binding:"required"`
 	PrizeMoney     int                `json:"prizeMoney,omitempty" bson:"prizeMoney,omitempty" binding:"required"`
 }
 
