@@ -42,7 +42,7 @@ func CreateUsers(c *fiber.Ctx) error {
 
 	currentNumber := currentNum.Number + 1
 	zeroPadding := 4 - len(fmt.Sprintf("%d", currentNumber))
-	users.TechnexID = "TX25"
+	users.TechnexID = "TX26"
 	for i := 0; i < zeroPadding; i++ {
 		users.TechnexID += "0"
 	}
