@@ -2,63 +2,62 @@ package payments
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"slices"
+	"strings"
 	"technexRegistration/database"
+	"technexRegistration/models"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 var allEvents = []string{
-	"DroneTech",
-	"AeroVerse",
+	"International Coding Marathon (ICM)",
+	"MLWare",
+	"Hack It Out",
+	"Capture The Flag (CTF)",
+	"Game Jam",
 	"SkyGlide",
-	"International Coding Marathon",
-	"Capture the Flag",
-	"Hack it out",
-	"1 Billion row challenge",
-	"Axelerate",
-	"Cadastrophe",
-	"Robo Soccer",
-	"SIMUSOLVE CHALLENGE",
-	"Fake investors",
-	"Climate buzzer",
-	"Eureka",
-	"Eco hackathon",
-	"AlgoZen",
-	"CogniQuest",
-	"Pokermania",
-	"CryptoRush",
-	"IOmatic",
-	"Soft-corner",
-	"Terravate",
-	"Consultathon",
-	"Prodonosis",
-	"Technalatics",
-	"Capital Quest",
-	"Robowars",
-	"Micromouse",
+	"AeroVerse",
+	"DroneTech",
 	"Botstacle Challenge",
-	"Mazex",
-	"Scientists of Utopia",
-	"Solid-Boost",
+	"Micromouse",
+	"MazeX",
+	"Robowars",
+	"Star-Hopping Challenge",
+	"AstroQuiz",
 	"Stellar Analytics",
-	"Astro-Quiz",
+	"Solid Boost",
+	"AI-Quisition",
+	"Prodnosis",
+	"Technalytics",
+	"Consultathon",
+	"NitiVerse",
+	"Eco Hackathon",
+	"Green Ideathon",
+	"Eureka",
+	"EngiNX: The Thermal Edition",
+	"Axelerate",
+	"Robosoccer",
+	"Boat Racing Competition",
+	"Algozen",
+	"Pokermania",
+	"CogniQuest",
+	"MarketSmith",
 }
 
 var allEventTickets = []string{
-	"Technex Early Bird Event Card",
-	"Technex Early Bird (Event + Food) Card",
-	"Test all events card",
+	"Technex (Event + Accommodation) Card",
 	"Technex Events Card",
+	"Test all events card",
 }
 
 var singleEventTickets = []string{
 	"Technex Single Event Card",
 	"Technex Single Event + Accomodation Card",
 	"Test single event card",
-	"Technex (Event + Accommodation) Card",
 }
 
 type TicketDetails struct {
@@ -66,10 +65,12 @@ type TicketDetails struct {
 }
 
 type AttendeeDetails struct {
-	Email     string        `json:"Email address"`
-	TechnexId string        `json:"Technex ID"`
-	Event     string        `json:"Event "`
-	Ticket    TicketDetails `json:"Ticket Details"`
+	Email      string        `json:"Email address"`
+	TechnexId  string        `json:"Technex ID"`
+	Event      string        `json:"Event "`
+	Ticket     TicketDetails `json:"Ticket Details"`
+	TicketURL  string        `json:"Ticket URL"`
+	InvoiceURL string        `json:"Invoice URL"`
 }
 
 type Details struct {
@@ -90,18 +91,26 @@ func getEventsFromAttendeeDetails(AttDetails AttendeeDetails) []string {
 	return newItems
 }
 
-func updateUserEvents(technexId string, newItems []string) error {
+func updateUserEvents(technexId string, newItems []string, ticket models.Ticket) error {
 	db, err := database.Connect()
 	if err != nil {
 		return err
 	}
-	result, err := db.Collection("users").UpdateOne(context.Background(), bson.D{{Key: "technexId", Value: technexId}},
-		bson.M{
-			"$addToSet": bson.M{
-				"registeredEvents": bson.M{
-					"$each": newItems,
-				},
-			}})
+
+	update := bson.M{
+		"$addToSet": bson.M{
+			"registeredEvents": bson.M{
+				"$each": newItems,
+			},
+			"tickets": ticket,
+		},
+	}
+
+	if ticket.Accommodation {
+		update["$set"] = bson.M{"accommodation": true}
+	}
+
+	result, err := db.Collection("users").UpdateOne(context.Background(), bson.D{{Key: "technexId", Value: technexId}}, update)
 	if err != nil {
 		return err
 	}
@@ -115,10 +124,21 @@ func updateUserEvents(technexId string, newItems []string) error {
 func CapturePayments(c *fiber.Ctx) error {
 	var body Body
 	c.BodyParser(&body)
-
+	out, _ := json.MarshalIndent(body, "", "  ")
+	fmt.Println(string(out))
 	newItems := getEventsFromAttendeeDetails(body.Data.AttDetails)
 
-	err := updateUserEvents(body.Data.AttDetails.TechnexId, newItems)
+	ticketName := body.Data.AttDetails.Ticket.TicketName
+	hasAccommodation := strings.Contains(ticketName, "Accomodation") || strings.Contains(ticketName, "Accommodation")
+
+	ticket := models.Ticket{
+		Name:          ticketName,
+		TicketURL:     body.Data.AttDetails.TicketURL,
+		InvoiceURL:    body.Data.AttDetails.InvoiceURL,
+		Accommodation: hasAccommodation,
+	}
+
+	err := updateUserEvents(body.Data.AttDetails.TechnexId, newItems, ticket)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": err.Error()})
 	}

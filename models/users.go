@@ -23,4 +23,13 @@ type Users struct {
 	UpdatedAt        time.Time          `json:"updatedAt,omitempty" bson:"updatedAt,omitempty" binding:"required"`
 	TechnexID        string             `json:"technexId,omitempty" bson:"technexId,omitempty" binding:"required"`
 	RegisteredEvents []string           `json:"registeredEvents" bson:"registeredEvents" binding:"required"`
+	Tickets          []Ticket           `json:"tickets" bson:"tickets" binding:"required"`
+	Accommodation    bool               `json:"accommodation,omitempty" bson:"accommodation,omitempty"`
+}
+
+type Ticket struct {
+	Name          string `json:"name" bson:"name"`
+	TicketURL     string `json:"ticketUrl" bson:"ticketUrl"`
+	InvoiceURL    string `json:"invoiceUrl" bson:"invoiceUrl"`
+	Accommodation bool   `json:"accommodation" bson:"accommodation"`
 }
