@@ -1,11 +1,14 @@
 module technexRegistration
 
-go 1.22.2
+go 1.23
+
+toolchain go1.24.12
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/joho/godotenv v1.5.1
+	github.com/resend/resend-go v1.7.0
 	go.mongodb.org/mongo-driver v1.17.1
 	golang.org/x/crypto v0.31.0
 )
@@ -31,3 +34,5 @@ require (
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 )
+
+replace github.com/resend/resend-go => github.com/resendlabs/resend-go v1.7.0

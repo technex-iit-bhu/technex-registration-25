@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"log"
 	"technexRegistration/database"
 	"technexRegistration/router"
@@ -17,6 +18,12 @@ func main() {
 		log.Fatal("unable to connect to client")
 	}
 	defer database.Disconnect()
-	app.Listen(":6969")
+	// app.Listen(":6969")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "6969"
+	}
+	log.Fatal(app.Listen(":" + port))
+
 	log.Println("Server started on port 6969")
 }
