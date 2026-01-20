@@ -4,81 +4,84 @@ import (
     "context"
     "fmt"
     "math/rand"
-    "net/smtp"
     "time"
     "technexRegistration/config"
     "technexRegistration/database"
     "technexRegistration/models"
 
     "github.com/gofiber/fiber/v2"
+    // "github.com/gofiber/fiber/v2"
     "go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/bson/primitive"
+    "github.com/resend/resend-go"
+    "strconv"
 )
-
 func SendOTP(c *fiber.Ctx) error {
     var body struct {
         Email string `json:"email"`
     }
 
     if err := c.BodyParser(&body); err != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "error": "Invalid request body",
-        })
+        return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
     }
 
     db, err := database.Connect()
     if err != nil {
         return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
     }
+    ctx := context.Background()
 
     // Check if user exists
     var user models.Users
-    err = db.Collection("users").FindOne(
-        context.Background(),
-        bson.D{{Key: "email", Value: body.Email}},
-    ).Decode(&user)
+    err = db.Collection("users").FindOne(ctx, bson.M{
+        "email": body.Email,
+    }).Decode(&user)
+
     if err != nil {
-        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"message": "user does not exist"})
+        return c.Status(404).JSON(fiber.Map{"message": "User not found"})
     }
 
-    // Generate a 6-digit OTP
-    rng := rand.New(rand.NewSource(time.Now().UnixNano()))
-    otpCode := rng.Intn(900000) + 100000 // range 100000-999999
+    // Generate OTP as string
+    otpCode := fmt.Sprintf("%06d", rand.Intn(1000000))
 
-    // Send OTP via email
-    smtpHost := config.Config("SMTP_HOST")
-    smtpPort := config.Config("SMTP_PORT")
-    senderEmail := config.Config("SMTP_EMAIL")
-    senderPassword := config.Config("SMTP_PASSWORD")
+    // Delete previous OTPs
+    db.Collection("otps").DeleteMany(ctx, bson.M{
+        "user_id": user.ID,
+        "used": false,
+    })
 
-    auth := smtp.PlainAuth("", senderEmail, senderPassword, smtpHost)
-    to := []string{body.Email}
-    subject := "Subject: Password Reset OTP\n"
-    msgBody := fmt.Sprintf("Your OTP for password reset is: %d", otpCode)
-    message := []byte(subject + "\n" + msgBody)
+    // Send OTP via Resend
+    resendKey := config.Config("RESEND_API_KEY")
+    fromEmail := config.Config("EMAIL_FROM")
 
-    err = smtp.SendMail(smtpHost+":"+smtpPort, auth, senderEmail, to, message)
+    client := resend.NewClient(resendKey)
+
+    _, err = client.Emails.Send(&resend.SendEmailRequest{
+        From:    fromEmail,
+        To:      []string{body.Email},
+        Subject: "Your OTP for password reset",
+        Html:    fmt.Sprintf("<h2>Your OTP is: %s</h2><p>Valid for 10 minutes</p>", otpCode),
+    })
+
     if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Failed to send OTP"})
+        fmt.Println("RESEND ERROR:", err)
+        return c.Status(500).JSON(fiber.Map{"message": "Failed to send OTP"})
     }
 
     otpDoc := models.Otp{
         ID:        primitive.NewObjectID(),
         UserID:    user.ID,
-        Code:      otpCode,
+        Code:      func() int { v, _ := strconv.Atoi(otpCode); return v }(),
         CreatedAt: time.Now(),
         ExpiresAt: time.Now().Add(10 * time.Minute),
         Used:      false,
     }
 
-    _, err = db.Collection("otps").InsertOne(context.Background(), otpDoc)
+    _, err = db.Collection("otps").InsertOne(ctx, otpDoc)
     if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Failed to store OTP",
-        })
+        fmt.Println("OTP DB ERROR:", err)
+        return c.Status(500).JSON(fiber.Map{"message": "Failed to save OTP"})
     }
 
-    return c.Status(fiber.StatusOK).JSON(fiber.Map{
-        "message": "OTP sent successfully",
-    })
+    return c.JSON(fiber.Map{"message": "OTP sent successfully"})
 }
