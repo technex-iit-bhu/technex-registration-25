@@ -81,14 +81,17 @@ type Body struct {
 	Data Details `json:"Data"`
 }
 
-func getEventsFromAttendeeDetails(AttDetails AttendeeDetails) []string {
+func getEventsFromAttendeeDetails(AttDetails AttendeeDetails) ([]string, error) {
 	newItems := []string{}
 	if slices.Contains(singleEventTickets, AttDetails.Ticket.TicketName) {
+		if AttDetails.Event == "" {
+			return nil, fmt.Errorf("no event name provided for single event ticket")
+		}
 		newItems = []string{AttDetails.Event}
 	} else if slices.Contains(allEventTickets, AttDetails.Ticket.TicketName) {
 		newItems = allEvents
 	}
-	return newItems
+	return newItems, nil
 }
 
 func updateUserEvents(technexId string, newItems []string, ticket models.Ticket, email string) error {
@@ -123,10 +126,21 @@ func updateUserEvents(technexId string, newItems []string, ticket models.Ticket,
 
 func CapturePayments(c *fiber.Ctx) error {
 	var body Body
-	c.BodyParser(&body)
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"message": "Invalid request body", "error": err.Error()})
+	}
+
+	if body.Data.AttDetails.TechnexId == "" {
+		return c.Status(400).JSON(fiber.Map{"message": "Technex ID is required"})
+	}
+
 	out, _ := json.MarshalIndent(body, "", "  ")
 	fmt.Println(string(out))
-	newItems := getEventsFromAttendeeDetails(body.Data.AttDetails)
+	newItems, err := getEventsFromAttendeeDetails(body.Data.AttDetails)
+
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"message": err.Error()})
+	}
 
 	ticketName := body.Data.AttDetails.Ticket.TicketName
 	hasAccommodation := strings.Contains(ticketName, "Accomodation") || strings.Contains(ticketName, "Accommodation")
@@ -138,9 +152,12 @@ func CapturePayments(c *fiber.Ctx) error {
 		Accommodation: hasAccommodation,
 	}
 
-	err := updateUserEvents(body.Data.AttDetails.TechnexId, newItems, ticket, body.Data.AttDetails.Email)
+	err = updateUserEvents(body.Data.AttDetails.TechnexId, newItems, ticket, body.Data.AttDetails.Email)
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"message": err.Error()})
+		if err.Error() == "user does not exist" {
+			return c.Status(404).JSON(fiber.Map{"message": "User not found"})
+		}
+		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 	}
 
 	return c.Status(200).JSON(fiber.Map{"message": "user updated successfully"})
