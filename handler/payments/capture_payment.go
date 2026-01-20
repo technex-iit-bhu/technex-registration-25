@@ -67,7 +67,7 @@ type TicketDetails struct {
 type AttendeeDetails struct {
 	Email      string        `json:"Email address"`
 	TechnexId  string        `json:"Technex ID"`
-	Event      string        `json:"Event "`
+	Event      string        `json:"Event"`
 	Ticket     TicketDetails `json:"Ticket Details"`
 	TicketURL  string        `json:"Ticket URL"`
 	InvoiceURL string        `json:"Invoice URL"`
@@ -91,7 +91,7 @@ func getEventsFromAttendeeDetails(AttDetails AttendeeDetails) []string {
 	return newItems
 }
 
-func updateUserEvents(technexId string, newItems []string, ticket models.Ticket) error {
+func updateUserEvents(technexId string, newItems []string, ticket models.Ticket, email string) error {
 	db, err := database.Connect()
 	if err != nil {
 		return err
@@ -110,7 +110,7 @@ func updateUserEvents(technexId string, newItems []string, ticket models.Ticket)
 		update["$set"] = bson.M{"accommodation": true}
 	}
 
-	result, err := db.Collection("users").UpdateOne(context.Background(), bson.D{{Key: "technexId", Value: technexId}}, update)
+	result, err := db.Collection("users").UpdateOne(context.Background(), bson.D{{Key: "technexId", Value: technexId}, {Key: "email", Value: email}}, update)
 	if err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func CapturePayments(c *fiber.Ctx) error {
 		Accommodation: hasAccommodation,
 	}
 
-	err := updateUserEvents(body.Data.AttDetails.TechnexId, newItems, ticket)
+	err := updateUserEvents(body.Data.AttDetails.TechnexId, newItems, ticket, body.Data.AttDetails.Email)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": err.Error()})
 	}

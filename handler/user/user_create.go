@@ -35,9 +35,15 @@ func CreateUsers(c *fiber.Ctx) error {
 	err = numCollection.FindOne(ctx, bson.M{}).Decode(&currentNum)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return c.Status(500).JSON(fiber.Map{"message": "No document found in 'num' collection"})
+			// If no document exists, initialize it with 0
+			_, err := numCollection.InsertOne(ctx, bson.M{"number": 0})
+			if err != nil {
+				return c.Status(500).JSON(fiber.Map{"message": "Failed to initialize counter"})
+			}
+			currentNum.Number = 0
+		} else {
+			return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 		}
-		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 	}
 
 	currentNumber := currentNum.Number + 1
@@ -49,6 +55,7 @@ func CreateUsers(c *fiber.Ctx) error {
 	users.TechnexID += fmt.Sprintf("%d", currentNumber)
 	// var registeredEvents []string
 	users.RegisteredEvents = []string{}
+	users.Tickets = []models.Ticket{}
 
 	// Update the number in the 'num' collection
 	_, err = numCollection.UpdateOne(ctx, bson.M{}, bson.M{"$set": bson.M{"number": currentNumber}})
