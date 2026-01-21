@@ -8,6 +8,7 @@ import (
 	"strings"
 	"technexRegistration/database"
 	"technexRegistration/models"
+	"technexRegistration/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
@@ -119,6 +120,15 @@ func updateUserEvents(technexId string, newItems []string, ticket models.Ticket,
 	}
 	if result.MatchedCount == 0 {
 		return fmt.Errorf("user does not exist")
+	}
+
+	// Invalidate cache for this user (lookup username by technexId+email)
+	var uname struct {
+		Username string `bson:"username"`
+	}
+	_ = db.Collection("users").FindOne(context.Background(), bson.D{{Key: "technexId", Value: technexId}, {Key: "email", Value: email}}).Decode(&uname)
+	if uname.Username != "" {
+		utils.DeleteUserProfile(uname.Username)
 	}
 	return nil
 
