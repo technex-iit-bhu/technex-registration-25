@@ -20,31 +20,37 @@ var allEvents = []string{
 	"Hack It Out",
 	"Capture The Flag (CTF)",
 	"Game Jam",
+
 	"SkyGlide",
 	"AeroVerse",
 	"DroneTech",
+
 	"Botstacle Challenge",
 	"Micromouse",
 	"MazeX",
 	"Robowars",
+
 	"Star-Hopping Challenge",
 	"AstroQuiz",
 	"Stellar Analytics",
 	"Solid Boost",
-	"AI-Quisition",
-	"Prodnosis",
-	"Technalytics",
-	"Consultathon",
-	"NitiVerse",
+
 	"Eco Hackathon",
 	"Green Ideathon",
 	"Eureka",
-	"EngiNX: The Thermal Edition",
+
+	"Consultathon",
+	"Prodnosis",
+	"TechAnalytics",
+	"AI-quisition",
+
+	"Sim-U-Later",
 	"Axelerate",
 	"Robosoccer",
-	"Boat Racing Competition",
+	"Dune Haul Extreme",
+
 	"Algozen",
-	"Pokermania",
+	"BetScript",
 	"CogniQuest",
 	"MarketSmith",
 }
