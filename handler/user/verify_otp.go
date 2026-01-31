@@ -2,6 +2,7 @@ package user
 
 import (
     "context"
+    "strings"
     "net/http"
     "time"
     "technexRegistration/database"
@@ -14,6 +15,7 @@ func VerifyOTP(c *fiber.Ctx) error {
     var body struct {
         Email string `json:"email"`
         OTP   int    `json:"otp"`
+        Purpose string `json:"purpose"`
     }
 
     if err := c.BodyParser(&body); err != nil {
@@ -40,6 +42,7 @@ func VerifyOTP(c *fiber.Ctx) error {
     var storedOtp models.Otp
     filter := bson.M{
         "userId": user.ID,
+        "purpose": body.Purpose,
         "code":   body.OTP,
         "used":   false,
     }
@@ -62,6 +65,24 @@ func VerifyOTP(c *fiber.Ctx) error {
             "message": "Error marking OTP as used",
         })
     }
+    if body.Purpose == "verify" {
+
+        parts := strings.Split(body.Email,"@")
+        domain := parts[len(parts)-1]
+
+        isInstitute := domain == "itbhu.ac.in" || domain == "iitbhu.ac.in"
+
+        db.Collection("users").UpdateOne(
+            context.Background(),
+            bson.M{"_id": user.ID},
+            bson.M{"$set": bson.M{
+                "email_verified": true,
+                "email_verified_at": time.Now(),
+                "is_institute": isInstitute,
+            }},
+        )
+    }
+
 
     return c.Status(http.StatusOK).JSON(fiber.Map{
         "message": "OTP verified successfully",

@@ -25,6 +25,9 @@ type Users struct {
 	RegisteredEvents []string           `json:"registeredEvents" bson:"registeredEvents" binding:"required"`
 	Tickets          []Ticket           `json:"tickets" bson:"tickets" binding:"required"`
 	Accommodation    bool               `json:"accommodation,omitempty" bson:"accommodation,omitempty"`
+	EmailVerified    bool               `bson:"email_verified"`
+	VerifiedAt       time.Time          `bson:"email_verified_at,omitempty"`
+	IsInstitute      bool               `bson:"is_institute"`
 }
 
 type Ticket struct {
@@ -33,3 +36,4 @@ type Ticket struct {
 	InvoiceURL    string `json:"invoiceUrl" bson:"invoiceUrl"`
 	Accommodation bool   `json:"accommodation" bson:"accommodation"`
 }
+

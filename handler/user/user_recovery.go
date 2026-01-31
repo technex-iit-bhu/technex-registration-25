@@ -21,7 +21,7 @@ func SendRecoveryEmail(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "user does not exist"})
 	}
-	err = utils.RecoveryMail(result.Email, utils.GenerateOTPConnectionString(username))
+	err = utils.RecoveryMail(result.Email, utils.GenerateOTPConnectionString(username), "Password Recovery")
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": "unable to send recovery email"})
 	}

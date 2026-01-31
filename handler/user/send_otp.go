@@ -5,20 +5,20 @@ import (
     "fmt"
     "math/rand"
     "time"
-    "technexRegistration/config"
     "technexRegistration/database"
     "technexRegistration/models"
+    "technexRegistration/utils"
 
     "github.com/gofiber/fiber/v2"
     // "github.com/gofiber/fiber/v2"
     "go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/bson/primitive"
-    "github.com/resend/resend-go"
     "strconv"
 )
 func SendOTP(c *fiber.Ctx) error {
     var body struct {
         Email string `json:"email"`
+        Purpose string `json:"purpose"`
     }
 
     if err := c.BodyParser(&body); err != nil {
@@ -47,21 +47,18 @@ func SendOTP(c *fiber.Ctx) error {
     // Delete previous OTPs
     db.Collection("otps").DeleteMany(ctx, bson.M{
         "user_id": user.ID,
+        "purpose": body.Purpose,
         "used": false,
     })
 
     // Send OTP via Resend
-    resendKey := config.Config("RESEND_API_KEY")
-    fromEmail := config.Config("EMAIL_FROM")
+    if body.Purpose == "reset" {
+        err = utils.RecoveryMail(body.Email, user.Username, otpCode)
+    }
 
-    client := resend.NewClient(resendKey)
-
-    _, err = client.Emails.Send(&resend.SendEmailRequest{
-        From:    fromEmail,
-        To:      []string{body.Email},
-        Subject: "Your OTP for password reset",
-        Html:    fmt.Sprintf("<h2>Your OTP is: %s</h2><p>Valid for 10 minutes</p>", otpCode),
-    })
+    if body.Purpose == "verify" {
+        err = utils.VerificationMail(body.Email, user.Username, otpCode)
+    }
 
     if err != nil {
         fmt.Println("RESEND ERROR:", err)
@@ -72,6 +69,7 @@ func SendOTP(c *fiber.Ctx) error {
         ID:        primitive.NewObjectID(),
         UserID:    user.ID,
         Code:      func() int { v, _ := strconv.Atoi(otpCode); return v }(),
+        Purpose: body.Purpose,
         CreatedAt: time.Now(),
         ExpiresAt: time.Now().Add(10 * time.Minute),
         Used:      false,
