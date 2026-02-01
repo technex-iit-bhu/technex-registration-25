@@ -73,7 +73,7 @@ type TicketDetails struct {
 
 type AttendeeDetails struct {
 	Email      string        `json:"Email address"`
-	TechnexId  string        `json:"Technex ID"`
+	TechnexId  string        `json:"Technex ID - (TX26XXXX)"`
 	Event      string        `json:"Event"`
 	Ticket     TicketDetails `json:"Ticket Details"`
 	TicketURL  string        `json:"Ticket URL"`
