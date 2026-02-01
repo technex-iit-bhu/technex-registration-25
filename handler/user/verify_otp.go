@@ -37,6 +37,14 @@ func VerifyOTP(c *fiber.Ctx) error {
     if err != nil {
         return c.Status(http.StatusNotFound).JSON(fiber.Map{"message": "user does not exist"})
     }
+    // user := c.Locals("user").(models.Users)
+
+    // if user.Email != body.Email {
+    //     return c.Status(403).JSON(fiber.Map{
+    //         "message": "Email does not match logged in user",
+    //     })
+    // }
+
 
     // Now lookup the OTP in the "otps" collection
     var storedOtp models.Otp
@@ -65,23 +73,36 @@ func VerifyOTP(c *fiber.Ctx) error {
             "message": "Error marking OTP as used",
         })
     }
-    if body.Purpose == "verify" {
 
-        parts := strings.Split(body.Email,"@")
-        domain := parts[len(parts)-1]
+    if body.Purpose == "verify" {
+        parts := strings.Split(body.Email, "@")
+        if len(parts) != 2 {
+            return c.Status(400).JSON(fiber.Map{
+                "message": "Invalid email format",
+            })
+        }
+
+        domain := parts[1]
 
         isInstitute := domain == "itbhu.ac.in" || domain == "iitbhu.ac.in"
 
-        db.Collection("users").UpdateOne(
+        _, err = db.Collection("users").UpdateOne(
             context.Background(),
             bson.M{"_id": user.ID},
             bson.M{"$set": bson.M{
-                "email_verified": true,
-                "email_verified_at": time.Now(),
-                "is_institute": isInstitute,
+                "email_verified":     true,
+                "email_verified_at":  time.Now(),
+                "is_institute":       isInstitute,
             }},
         )
+
+        if err != nil {
+            return c.Status(500).JSON(fiber.Map{
+                "message": "Failed to update user verification",
+            })
+        }
     }
+
 
 
     return c.Status(http.StatusOK).JSON(fiber.Map{
