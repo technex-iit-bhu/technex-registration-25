@@ -13,6 +13,7 @@ type Users struct {
 	Password         string             `json:"password,omitempty" bson:"password,omitempty" binding:"required"`
 	Institute        string             `json:"institute,omitempty" bson:"institute,omitempty" binding:"required"`
 	City             string             `json:"city,omitempty" bson:"city,omitempty"`
+	Gender           string             `json:"gender,omitempty" bson:"gender,omitempty" binding:"required" validate:"oneof=male female others"`
 	Year             int                `json:"year,omitempty" bson:"year,omitempty"`
 	Branch           string             `json:"branch,omitempty" bson:"branch,omitempty"`
 	Phone            string             `json:"phone,omitempty" bson:"phone,omitempty" binding:"required"`
@@ -36,4 +37,3 @@ type Ticket struct {
 	InvoiceURL    string `json:"invoiceUrl" bson:"invoiceUrl"`
 	Accommodation bool   `json:"accommodation" bson:"accommodation"`
 }
-
