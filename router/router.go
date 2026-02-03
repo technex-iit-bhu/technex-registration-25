@@ -31,9 +31,11 @@ func Route(app *fiber.App) {
 	user.Post("/verify_recovery_and_update_password", user_handler.UpdatePassword)
 	user.Post("/verify-qr", user_handler.VerifyQR)
 	user.Post("/send-otp", user_handler.SendOTP)
-    user.Post("/verify-otp", user_handler.VerifyOTP)
+	user.Post("/verify-otp", user_handler.VerifyOTP)
 	user.Post("/reset-password", user_handler.ResetPassword)
 	user.Post("/institute-id-register", user_handler.InstituteIdRegisterEvent) // ✅ Add this line
+
+	api.Get("/export/users", user_handler.ExportUsers)
 
 	events := api.Group("/events")
 	events.Get("/", event_handler.GetAllEvents)
