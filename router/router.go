@@ -33,6 +33,7 @@ func Route(app *fiber.App) {
 	user.Post("/send-otp", user_handler.SendOTP)
     user.Post("/verify-otp", user_handler.VerifyOTP)
 	user.Post("/reset-password", user_handler.ResetPassword)
+	user.Post("/institute-id-register", user_handler.InstituteIdRegisterEvent) // ✅ Add this line
 
 	events := api.Group("/events")
 	events.Get("/", event_handler.GetAllEvents)
