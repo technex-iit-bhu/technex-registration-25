@@ -20,10 +20,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    environment:
-      - REDIS_URL=redis:6379
     ports:
-      - "8080:8080"
+      - "8080:6969"
     depends_on:
       redis:
         condition: service_healthy
@@ -33,10 +31,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    environment:
-      - REDIS_URL=redis:6379
     ports:
-      - "8081:8080"
+      - "8081:6969"
     depends_on:
       redis:
         condition: service_healthy
