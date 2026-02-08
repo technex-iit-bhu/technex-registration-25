@@ -7,6 +7,7 @@ import (
 	"technexRegistration/database"
 	"technexRegistration/models"
 	"technexRegistration/utils"
+	"strings"
 )
 
 func LoginWithPassword(c *fiber.Ctx) error {
@@ -21,12 +22,25 @@ func LoginWithPassword(c *fiber.Ctx) error {
 	}
 	c.BodyParser(&body)
 
+	if body.Username == "" || body.Password == "" {
+		return c.Status(400).JSON(fiber.Map{"message": "username/email and password are required"})
+	}
+
 	var result models.Users
-	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key: "username", Value: body.Username}}).Decode(&result)
+	var filter bson.D
+
+	if strings.Contains(body.Username, "@") {
+		filter = bson.D{{Key: "email", Value: body.Username}}
+	} else {
+		filter = bson.D{{Key: "username", Value: body.Username}}
+	}
+
+	err = db.Collection("users").FindOne(context.Background(), filter).Decode(&result)
 
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"message": "invalid username"})
+		return c.Status(404).JSON(fiber.Map{"message": "invalid username or email"})
 	}
+
 	if !utils.CheckPassword(body.Password, result.Password) {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid password"})
 	} else {
