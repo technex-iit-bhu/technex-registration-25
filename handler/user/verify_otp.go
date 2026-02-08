@@ -104,7 +104,7 @@ func VerifyOTP(c *fiber.Ctx) error {
 		}
 
 		// Clear the cached user profile after update
-		utils.DeleteUserProfile(user.Email)
+		utils.DeleteUserProfile(user.Username)
 	}
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{
