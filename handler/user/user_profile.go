@@ -11,16 +11,22 @@ import (
 )
 
 func GetUserFromToken(c *fiber.Ctx) error {
-	token := c.Get("Authorization")[7:]
+	authHeader := c.Get("Authorization")
+	if len(authHeader) < 8 || authHeader[:7] != "Bearer " {
+		return c.Status(401).JSON(fiber.Map{"message": "authorization header missing"})
+	}
+	token := authHeader[7:]
+
 	db, err := database.Connect()
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 	}
-	username, err := utils.DeserialiseUser(token)
+
+	username, err := utils.DeserialiseAccessToken(token)
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"message": "invalid token"})
+		return c.Status(401).JSON(fiber.Map{"message": "invalid token"})
 	}
-	// Check cache first
+
 	if cached, ok := utils.GetUserProfile(username); ok {
 		qrToken, _ := utils.SerialiseQR(cached.Username)
 		return c.Status(200).JSON(fiber.Map{"data": cached, "qrToken": qrToken})
@@ -32,7 +38,6 @@ func GetUserFromToken(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"message": "user does not exist"})
 	}
 
-	// Store in cache
 	utils.SetUserProfile(username, result)
 	qrToken, _ := utils.SerialiseQR(result.Username)
 	return c.Status(200).JSON(fiber.Map{

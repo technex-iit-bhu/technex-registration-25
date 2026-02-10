@@ -43,10 +43,35 @@ func LoginWithPassword(c *fiber.Ctx) error {
 
 	if !utils.CheckPassword(body.Password, result.Password) {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid password"})
-	} else {
-		token, _ := utils.SerialiseUser(result.Username)
-		return c.Status(200).JSON(fiber.Map{"token": token})
 	}
+
+	accessToken, err := utils.SerialiseAccessToken(result.Username)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"message": "failed to generate access token"})
+	}
+
+	refreshToken, err := utils.SerialiseRefreshToken(result.Username)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"message": "failed to generate refresh token"})
+	}
+
+	c.Cookie(&fiber.Cookie{
+		Name:     "refresh_token",
+		Value:    refreshToken,
+		Path:     "/",
+		MaxAge:   7 * 24 * 60 * 60, // 7 days
+		// MaxAge:   120, //testing
+		HTTPOnly: true,
+		Secure:   true, // Set to true in production with HTTPS
+		SameSite: "Lax",
+	})
+
+	return c.Status(200).JSON(fiber.Map{
+		"access_token": accessToken,
+		"token_type":   "Bearer",
+		"expires_in":   7200, //2 hours
+		// "expires_in":   30, //testing
+	})
 }
 
 func LoginWithGoogle(c *fiber.Ctx) error {

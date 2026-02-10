@@ -24,7 +24,7 @@ func InstituteIdRegisterEvent(c *fiber.Ctx) error {
     }
     token = token[7:]
 
-    username, err := utils.DeserialiseUser(token)
+    username, err := utils.DeserialiseAccessToken(token)
     if err != nil {
         return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
             "message": "Invalid token",

@@ -14,7 +14,7 @@ func DeleteUser(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 	}
-	username, err := utils.DeserialiseUser(token)
+	username, err := utils.DeserialiseAccessToken(token)
 
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid token"})

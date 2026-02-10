@@ -1,6 +1,7 @@
 package router
 
 import (
+	"os"
 	"technexRegistration/handler"
 	event_handler "technexRegistration/handler/events"
 	payments_handler "technexRegistration/handler/payments"
@@ -13,8 +14,17 @@ import (
 )
 
 func Route(app *fiber.App) {
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		frontendURL = "http://localhost:3000"
+	}
 
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     frontendURL,
+		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization",
+		AllowCredentials: true,
+	}))
 	app.Get("/", handler.Hello)
 	api := app.Group("/api", logger.New())
 	api.Get("/", handler.HelloAPI)
@@ -25,6 +35,10 @@ func Route(app *fiber.App) {
 	user.Post("/login/password", user_handler.LoginWithPassword)
 	user.Post("/login/google", user_handler.LoginWithGoogle)
 	user.Post("/login/github", user_handler.LoginWithGithub)
+
+	user.Post("/refresh", user_handler.RefreshToken)
+	user.Post("/logout", user_handler.Logout)
+
 	user.Delete("/delete", user_handler.DeleteUser)
 	user.Patch("/update", user_handler.UpdateDetails)
 	user.Get("/recovery/:username", user_handler.SendRecoveryEmail)

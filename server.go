@@ -7,12 +7,12 @@ import (
 	"technexRegistration/router"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
+	// "github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
 	app := fiber.New()
-	app.Use(cors.New())
+	// app.Use(cors.New())
 	router.Route(app)
 	if err := database.Init(); err != nil {
 		log.Fatal("unable to connect to client")
