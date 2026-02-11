@@ -16,6 +16,11 @@ import (
 func Route(app *fiber.App) {
 	allowOrigins := []string{"http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "https://www.technex.in", "https://technex.in"}
 
+	// Open routes without CORS
+	app.Get("/api/export/users", user_handler.ExportUsers)
+	paymentsOpen := app.Group("/api/payments")
+	paymentsOpen.Post("/", payments_handler.CapturePayments)
+
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     strings.Join(allowOrigins, ","),
 		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
@@ -46,8 +51,6 @@ func Route(app *fiber.App) {
 	user.Post("/reset-password", user_handler.ResetPassword)
 	user.Post("/institute-id-register", user_handler.InstituteIdRegisterEvent) // ✅ Add this line
 
-	api.Get("/export/users", user_handler.ExportUsers)
-
 	events := api.Group("/events")
 	events.Get("/", event_handler.GetAllEvents)
 	events.Get("/getEvent", event_handler.GetEventDetails)
@@ -71,6 +74,4 @@ func Route(app *fiber.App) {
 	workshops.Patch("/updateSubWorkshops/", workshop_handler.UpdateSubWorkshops)
 	workshops.Get("/subworkshops", workshop_handler.GetSubWorkshops)
 
-	payments := api.Group("/payments")
-	payments.Post("/", payments_handler.CapturePayments)
 }
