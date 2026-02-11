@@ -1,7 +1,7 @@
 package router
 
 import (
-	"os"
+	"strings"
 	"technexRegistration/handler"
 	event_handler "technexRegistration/handler/events"
 	payments_handler "technexRegistration/handler/payments"
@@ -14,13 +14,10 @@ import (
 )
 
 func Route(app *fiber.App) {
-	frontendURL := os.Getenv("FRONTEND_URL")
-	if frontendURL == "" {
-		frontendURL = "http://localhost:3000"
-	}
+	allowOrigins := []string{"http://localhost:3000", "http://localhost:3001", "http://localhost:3002"}
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     frontendURL,
+		AllowOrigins:     strings.Join(allowOrigins, ","),
 		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
 		AllowHeaders:     "Origin,Content-Type,Accept,Authorization",
 		AllowCredentials: true,

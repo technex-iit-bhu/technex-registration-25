@@ -18,7 +18,6 @@ func main() {
 		log.Fatal("unable to connect to client")
 	}
 	defer database.Disconnect()
-	// app.Listen(":6969")
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "6969"
