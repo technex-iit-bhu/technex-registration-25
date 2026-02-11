@@ -14,7 +14,7 @@ import (
 )
 
 func Route(app *fiber.App) {
-	allowOrigins := []string{"http://localhost:3000", "http://localhost:3001", "http://localhost:3002"}
+	allowOrigins := []string{"http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "https://www.technex.in", "https://technex.in"}
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     strings.Join(allowOrigins, ","),
