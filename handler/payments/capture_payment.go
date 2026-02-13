@@ -119,8 +119,8 @@ func updateUserEvents(technexId string, newItems []string, ticket models.Ticket,
 	if ticket.Accommodation {
 		update["$set"] = bson.M{"accommodation": true}
 	}
-
-	result, err := db.Collection("users").UpdateOne(context.Background(), bson.D{{Key: "technexId", Value: technexId}, {Key: "email", Value: email}}, update)
+	// removing email dependency
+	result, err := db.Collection("users").UpdateOne(context.Background(), bson.D{{Key: "technexId", Value: technexId}}, update)
 	if err != nil {
 		return err
 	}
