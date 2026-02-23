@@ -2,12 +2,13 @@ package user
 
 import (
 	"context"
-	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
 	"technexRegistration/database"
 	"technexRegistration/models"
 	"technexRegistration/utils"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type Body struct {
@@ -65,5 +66,8 @@ func UpdateDetails(c *fiber.Ctx) error {
 	if result.MatchedCount == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "user does not exist"})
 	}
+
+	// Invalidate the cached profile so the next request fetches fresh data
+	utils.DeleteUserProfile(username)
 	return c.Status(200).JSON(fiber.Map{"message": "user updated successfully"})
 }
