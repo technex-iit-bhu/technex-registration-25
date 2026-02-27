@@ -65,6 +65,13 @@ var singleEventTickets = []string{
 	"Technex Single Event Card",
 	"Technex Single Event + Accomodation Card",
 	"Test single event card",
+	"Technex Online Events Card",
+}
+
+var onlineEventOptions = []string{
+	"Capture The Flag (CTF)",
+	"Hack It Out",
+	"Game Jam",
 }
 
 type TicketDetails struct {
@@ -72,12 +79,13 @@ type TicketDetails struct {
 }
 
 type AttendeeDetails struct {
-	Email      string        `json:"Email Address"`
-	TechnexId  string        `json:"Technex ID - (TX26XXXX)"`
-	Event      string        `json:"Event"`
-	Ticket     TicketDetails `json:"Ticket Details"`
-	TicketURL  string        `json:"Ticket URL"`
-	InvoiceURL string        `json:"Invoice URL"`
+	Email       string        `json:"Email Address"`
+	TechnexId   string        `json:"Technex ID - (TX26XXXX)"`
+	Event       string        `json:"Event"`
+	OnlineEvent string        `json:"Online Event"`
+	Ticket      TicketDetails `json:"Ticket Details"`
+	TicketURL   string        `json:"Ticket URL"`
+	InvoiceURL  string        `json:"Invoice URL"`
 }
 
 type Details struct {
@@ -90,6 +98,15 @@ type Body struct {
 
 func getEventsFromAttendeeDetails(AttDetails AttendeeDetails) ([]string, error) {
 	newItems := []string{}
+	if AttDetails.Ticket.TicketName == "Technex Online Events Card" {
+		if AttDetails.OnlineEvent == "" {
+			return nil, fmt.Errorf("online event selection is required for Technex Online Events Card")
+		}
+		if !slices.Contains(onlineEventOptions, AttDetails.OnlineEvent) {
+			return nil, fmt.Errorf("invalid online event selection")
+		}
+		return []string{AttDetails.OnlineEvent}, nil
+	}
 	if slices.Contains(singleEventTickets, AttDetails.Ticket.TicketName) {
 		if AttDetails.Event == "" {
 			return nil, fmt.Errorf("no event name provided for single event ticket")

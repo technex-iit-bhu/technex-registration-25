@@ -41,7 +41,7 @@ func Init() error {
 			return err
 		}
 		fmt.Println("Connected to Redis via REDIS_URL")
-	}else{
+	} else {
 		fmt.Println("No Redis URL Found")
 	}
 	return nil
@@ -53,6 +53,11 @@ func Connect() (*mongo.Database, error) {
 	}
 
 	return client.Database(config.Config("MONGO_DB_NAME")), nil
+}
+
+// GetClient exposes the MongoDB client for cleanup scenarios.
+func GetClient() *mongo.Client {
+	return client
 }
 
 func Disconnect() error {
