@@ -37,6 +37,7 @@ func GetUserFromToken(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "user does not exist"})
 	}
+	result.Password = ""
 
 	utils.SetUserProfile(username, result)
 	qrToken, _ := utils.SerialiseQR(result.Username)

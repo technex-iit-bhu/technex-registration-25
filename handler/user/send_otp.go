@@ -1,85 +1,122 @@
 package user
 
 import (
-    "context"
-    "fmt"
-    "math/rand"
-    "time"
-    "technexRegistration/database"
-    "technexRegistration/models"
-    "technexRegistration/utils"
+	"context"
+	"crypto/rand"
+	"fmt"
+	"math/big"
+	"regexp"
+	"strings"
+	"technexRegistration/database"
+	"technexRegistration/models"
+	"technexRegistration/utils"
+	"time"
 
-    "github.com/gofiber/fiber/v2"
-    // "github.com/gofiber/fiber/v2"
-    "go.mongodb.org/mongo-driver/bson"
-    "go.mongodb.org/mongo-driver/bson/primitive"
-    "strconv"
+	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
 func SendOTP(c *fiber.Ctx) error {
-    var body struct {
-        Email string `json:"email"`
-        Purpose string `json:"purpose"`
-    }
+	// accept either email or username in the body
+	var body struct {
+		EmailOrUsername string `json:"email"`
+		Purpose         string `json:"purpose"`
+	}
 
-    if err := c.BodyParser(&body); err != nil {
-        return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
-    }
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
+	}
 
-    db, err := database.Connect()
-    if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
-    }
-    ctx := context.Background()
+	db, err := database.Connect()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
+	}
+	ctx := context.Background()
 
-    // Check if user exists
-    var user models.Users
-    err = db.Collection("users").FindOne(ctx, bson.M{
-        "email": body.Email,
-    }).Decode(&user)
+	// Validate purpose
+	if body.Purpose != "reset" && body.Purpose != "verify" {
+		return c.Status(400).JSON(fiber.Map{"message": "Invalid purpose"})
+	}
 
-    if err != nil {
-        return c.Status(404).JSON(fiber.Map{"message": "User not found"})
-    }
+	// Normalize the identifier (email or username)
+	identifier := strings.TrimSpace(body.EmailOrUsername)
+	if identifier == "" {
+		return c.Status(400).JSON(fiber.Map{"message": "Email or username is required"})
+	}
 
-    // Generate OTP as string
-    otpCode := fmt.Sprintf("%06d", rand.Intn(1000000))
+	// Check if user exists by email or username
+	var user models.Users
+	filter := bson.M{}
+	if strings.Contains(identifier, "@") {
+		// Use regex for case-insensitive email matching to support legacy data
+		cleanEmail := normalizeEmail(identifier)
+		pattern := fmt.Sprintf("^%s$", regexp.QuoteMeta(cleanEmail))
+		filter = bson.M{"email": bson.M{"$regex": pattern, "$options": "i"}}
+	} else {
+		filter = usernameCaseInsensitiveFilter(identifier)
+		if len(filter) == 0 {
+			return c.Status(400).JSON(fiber.Map{"message": "Invalid username"})
+		}
+	}
+	err = db.Collection("users").FindOne(ctx, filter).Decode(&user)
 
-    // Delete previous OTPs
-    db.Collection("otps").DeleteMany(ctx, bson.M{
-        "user_id": user.ID,
-        "purpose": body.Purpose,
-        "used": false,
-    })
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"message": "User not found"})
+	}
 
-    // Send OTP via Resend
-    if body.Purpose == "reset" {
-        err = utils.RecoveryMail(body.Email, user.Username, otpCode)
-    }
+	if user.Email == "" {
+		fmt.Printf("Data Error: User %s found but has no email\n", user.Username)
+		return c.Status(500).JSON(fiber.Map{"message": "User record is invalid (missing email)"})
+	}
 
-    if body.Purpose == "verify" {
-        err = utils.VerificationMail(body.Email, user.Username, otpCode)
-    }
+	// Generate OTP using crypto/rand
+	n, err := rand.Int(rand.Reader, big.NewInt(1000000))
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"message": "Failed to generate OTP"})
+	}
+	otpCode := fmt.Sprintf("%06d", n.Int64())
 
-    if err != nil {
-        fmt.Println("RESEND ERROR:", err)
-        return c.Status(500).JSON(fiber.Map{"message": "Failed to send OTP"})
-    }
+	// Delete previous OTPs using correct field name
+	db.Collection("otps").DeleteMany(ctx, bson.M{
+		"userId":  user.ID,
+		"purpose": body.Purpose,
+		"used":    false,
+	})
 
-    otpDoc := models.Otp{
-        ID:        primitive.NewObjectID(),
-        UserID:    user.ID,
-        Code:      func() int { v, _ := strconv.Atoi(otpCode); return v }(),
-        Purpose: body.Purpose,
-        CreatedAt: time.Now(),
-        ExpiresAt: time.Now().Add(10 * time.Minute),
-        Used:      false,
-    }
+	// Send OTP via Resend
+	if body.Purpose == "reset" {
+		err = utils.RecoveryMail(user.Email, user.Username, otpCode)
+	}
 
-    _, err = db.Collection("otps").InsertOne(ctx, otpDoc)
-    if err != nil {
-        fmt.Println("OTP DB ERROR:", err)
-        return c.Status(500).JSON(fiber.Map{"message": "Failed to save OTP"})
-    }
+	if body.Purpose == "verify" {
+		err = utils.VerificationMail(user.Email, user.Username, otpCode)
+	}
 
-    return c.JSON(fiber.Map{"message": "OTP sent successfully"})
+	if err != nil {
+		fmt.Println("RESEND ERROR:", err)
+		return c.Status(500).JSON(fiber.Map{"message": "Failed to send OTP"})
+	}
+
+	otpDoc := models.Otp{
+		ID:        primitive.NewObjectID(),
+		UserID:    user.ID,
+		Code:      int(n.Int64()),
+		Purpose:   body.Purpose,
+		CreatedAt: time.Now(),
+		ExpiresAt: time.Now().Add(10 * time.Minute),
+		Used:      false,
+	}
+
+	_, err = db.Collection("otps").InsertOne(ctx, otpDoc)
+	if err != nil {
+		fmt.Println("OTP DB ERROR:", err)
+		return c.Status(500).JSON(fiber.Map{"message": "Failed to save OTP"})
+	}
+
+	return c.JSON(fiber.Map{
+		"message":  "OTP sent successfully",
+		"email":    user.Email,
+		"username": user.Username,
+	})
 }

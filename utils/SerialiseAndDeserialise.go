@@ -21,7 +21,7 @@ func SerialiseAccessToken(username string) (string, error) {
 		"type":     "access",
 		"exp":      time.Now().Add(2 * time.Hour).Unix(),
 		// "exp":	  	time.Now().Add(30 * time.Second).Unix(), // 10 seconds for testing
-		"iat":      time.Now().Unix(),
+		"iat": time.Now().Unix(),
 	})
 	signedToken, err := token.SignedString(serialKey)
 	if err != nil {
@@ -73,7 +73,7 @@ func SerialiseRefreshToken(username string) (string, error) {
 		"type":     "refresh",
 		"exp":      time.Now().Add(7 * 24 * time.Hour).Unix(), // 7 days
 		// "exp":      time.Now().Add(2 * time.Minute).Unix(),
-		"iat":      time.Now().Unix(),
+		"iat": time.Now().Unix(),
 	})
 	signedToken, err := token.SignedString(refreshKey)
 	if err != nil {
@@ -119,7 +119,6 @@ func DeserialiseRefreshToken(signedToken string) (string, error) {
 	return username, nil
 }
 
-
 func SerialiseUser(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
@@ -139,8 +138,18 @@ func DeserialiseUser(signedToken string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	claims, _ := token.Claims.(jwt.MapClaims)
-	return claims["username"].(string), nil
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", fmt.Errorf("invalid token claims")
+	}
+
+	username, ok := claims["username"].(string)
+	if !ok {
+		return "", fmt.Errorf("invalid username claim")
+	}
+
+	return username, nil
 }
 
 func SerialiseQR(username string) (string, error) {
@@ -162,8 +171,17 @@ func DeserialiseQR(signedToken string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	claims, _ := token.Claims.(jwt.MapClaims)
-	return claims["username"].(string), nil
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", fmt.Errorf("invalid token claims")
+	}
+
+	username, ok := claims["username"].(string)
+	if !ok {
+		return "", fmt.Errorf("invalid username claim")
+	}
+
+	return username, nil
 }
 
 func SerialiseGmailToken(gmail string) (string, error) {
@@ -185,9 +203,17 @@ func DeserialiseGmailToken(signedToken string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	claims, _ := token.Claims.(jwt.MapClaims)
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", fmt.Errorf("invalid token claims")
+	}
 
-	return claims["gmail"].(string), nil
+	gmail, ok := claims["gmail"].(string)
+	if !ok {
+		return "", fmt.Errorf("invalid gmail claim")
+	}
+
+	return gmail, nil
 }
 
 func SerialiseGithubToken(github string) (string, error) {
@@ -209,15 +235,24 @@ func DeserialiseGithubToken(signedToken string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	claims, _ := token.Claims.(jwt.MapClaims)
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", fmt.Errorf("invalid token claims")
+	}
 
-	return claims["github"].(string), nil
+	github, ok := claims["github"].(string)
+	if !ok {
+		return "", fmt.Errorf("invalid github claim")
+	}
+
+	return github, nil
 }
 
 func SerialiseRecovery(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username":   username,
-		"expires_at": time.Now().Add(10 * time.Minute).Unix(),
+		"username": username,
+		"exp":      time.Now().Add(10 * time.Minute).Unix(),
+		"iat":      time.Now().Unix(),
 	})
 	signedToken, err := token.SignedString(recoveryKey)
 	if err != nil {
@@ -234,9 +269,16 @@ func DeserialiseRecovery(signedToken string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	claims, _ := token.Claims.(jwt.MapClaims)
-	if time.Now().After(time.Unix(int64(claims["expires_at"].(float64)), 0)) {
-		return "", fmt.Errorf("expired")
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", fmt.Errorf("invalid token claims")
 	}
-	return claims["username"].(string), nil
+
+	username, ok := claims["username"].(string)
+	if !ok {
+		return "", fmt.Errorf("invalid username claim")
+	}
+
+	return username, nil
 }

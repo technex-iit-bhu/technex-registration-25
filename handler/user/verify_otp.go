@@ -2,7 +2,9 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 	"technexRegistration/database"
 	"technexRegistration/models"
@@ -31,11 +33,27 @@ func VerifyOTP(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
 	}
 
-	// Check if user exists
+	identifier := strings.TrimSpace(body.Email)
+	if identifier == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Email or Username is required"})
+	}
+
+	// Check if user exists by email or username
 	var user models.Users
-	err = db.Collection("users").FindOne(context.Background(), bson.D{
-		{Key: "email", Value: body.Email},
-	}).Decode(&user)
+	filter := bson.M{}
+
+	if strings.Contains(identifier, "@") {
+		cleanEmail := normalizeEmail(identifier)
+		// Use regex for case-insensitive email matching just like send_otp
+		pattern := fmt.Sprintf("^%s$", regexp.QuoteMeta(cleanEmail))
+		filter = bson.M{"email": bson.M{"$regex": pattern, "$options": "i"}}
+	} else {
+		// Try to find by username if input is not email
+		pattern := fmt.Sprintf("^%s$", regexp.QuoteMeta(identifier))
+		filter = bson.M{"username": bson.M{"$regex": pattern, "$options": "i"}}
+	}
+
+	err = db.Collection("users").FindOne(context.Background(), filter).Decode(&user)
 	if err != nil {
 		return c.Status(http.StatusNotFound).JSON(fiber.Map{"message": "user does not exist"})
 	}
@@ -49,7 +67,7 @@ func VerifyOTP(c *fiber.Ctx) error {
 
 	// Now lookup the OTP in the "otps" collection
 	var storedOtp models.Otp
-	filter := bson.M{
+	filter = bson.M{
 		"userId":  user.ID,
 		"purpose": body.Purpose,
 		"code":    body.OTP,
@@ -76,10 +94,11 @@ func VerifyOTP(c *fiber.Ctx) error {
 	}
 
 	if body.Purpose == "verify" {
-		parts := strings.Split(body.Email, "@")
+		userEmail := strings.ToLower(user.Email)
+		parts := strings.Split(userEmail, "@")
 		if len(parts) != 2 {
 			return c.Status(400).JSON(fiber.Map{
-				"message": "Invalid email format",
+				"message": "Invalid email format in stored user",
 			})
 		}
 
@@ -105,6 +124,21 @@ func VerifyOTP(c *fiber.Ctx) error {
 
 		// Clear the cached user profile after update
 		utils.DeleteUserProfile(user.Username)
+	}
+
+	if body.Purpose == "reset" {
+		// Issue a short-lived reset token
+		resetToken, err := utils.SerialiseRecovery(user.Username)
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{
+				"message": "Failed to generate reset token",
+			})
+		}
+
+		return c.Status(http.StatusOK).JSON(fiber.Map{
+			"message":     "OTP verified successfully",
+			"reset_token": resetToken,
+		})
 	}
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{

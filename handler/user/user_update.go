@@ -23,7 +23,12 @@ type Body struct {
 }
 
 func UpdateDetails(c *fiber.Ctx) error {
-	token := c.Get("Authorization")[7:]
+	authHeader := c.Get("Authorization")
+	if len(authHeader) < 8 || authHeader[:7] != "Bearer " {
+		return c.Status(401).JSON(fiber.Map{"message": "authorization header missing"})
+	}
+	token := authHeader[7:]
+
 	db, err := database.Connect()
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
@@ -32,7 +37,10 @@ func UpdateDetails(c *fiber.Ctx) error {
 
 	var body Body
 
-	c.BodyParser(&body)
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"message": "Invalid request body"})
+	}
+
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid token"})
 	}
