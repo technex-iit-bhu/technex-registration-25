@@ -59,8 +59,8 @@ func SendOTP(c *fiber.Ctx) error {
 			return c.Status(400).JSON(fiber.Map{"message": "Invalid username"})
 		}
 	}
-	err = db.Collection("users").FindOne(ctx, filter).Decode(&user)
 
+	err = db.Collection("users").FindOne(ctx, filter).Decode(&user)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "User not found"})
 	}
@@ -78,23 +78,22 @@ func SendOTP(c *fiber.Ctx) error {
 	otpCode := fmt.Sprintf("%06d", n.Int64())
 
 	// Delete previous OTPs using correct field name
-	db.Collection("otps").DeleteMany(ctx, bson.M{
+	_, _ = db.Collection("otps").DeleteMany(ctx, bson.M{
 		"userId":  user.ID,
 		"purpose": body.Purpose,
 		"used":    false,
 	})
 
-	// Send OTP via Resend
+	// Send OTP via SMTP (implemented inside utils.RecoveryMail / utils.VerificationMail)
 	if body.Purpose == "reset" {
 		err = utils.RecoveryMail(user.Email, user.Username, otpCode)
 	}
-
 	if body.Purpose == "verify" {
 		err = utils.VerificationMail(user.Email, user.Username, otpCode)
 	}
 
 	if err != nil {
-		fmt.Println("RESEND ERROR:", err)
+		fmt.Println("SMTP MAIL ERROR:", err)
 		return c.Status(500).JSON(fiber.Map{"message": "Failed to send OTP"})
 	}
 
