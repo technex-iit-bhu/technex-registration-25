@@ -74,6 +74,14 @@ var onlineEventOptions = []string{
 	"Game Jam",
 }
 
+var productManagementWorkshopEvents = []string{
+	"Product Management Workshop",
+}
+
+var generativeAIWorkshopEvents = []string{
+	"Generative AI Workshop",
+}
+
 type TicketDetails struct {
 	TicketName string `json:"Ticket Name"`
 }
@@ -97,8 +105,9 @@ type Body struct {
 }
 
 func getEventsFromAttendeeDetails(AttDetails AttendeeDetails) ([]string, error) {
+	ticketName := AttDetails.Ticket.TicketName
 	newItems := []string{}
-	if AttDetails.Ticket.TicketName == "Technex Online Events Card" {
+	if ticketName == "Technex Online Events Card" {
 		if AttDetails.OnlineEvent == "" {
 			return nil, fmt.Errorf("online event selection is required for Technex Online Events Card")
 		}
@@ -107,13 +116,23 @@ func getEventsFromAttendeeDetails(AttDetails AttendeeDetails) ([]string, error) 
 		}
 		return []string{AttDetails.OnlineEvent}, nil
 	}
-	if slices.Contains(singleEventTickets, AttDetails.Ticket.TicketName) {
+	if slices.Contains(singleEventTickets, ticketName) {
 		if AttDetails.Event == "" {
 			return nil, fmt.Errorf("no event name provided for single event ticket")
 		}
 		newItems = []string{AttDetails.Event}
-	} else if slices.Contains(allEventTickets, AttDetails.Ticket.TicketName) {
+	} else if slices.Contains(allEventTickets, ticketName) {
 		newItems = allEvents
+	} else if strings.Contains(ticketName, "One Day Workshop") {
+		newItems = slices.Clone(productManagementWorkshopEvents)
+		if strings.Contains(ticketName, "All Events") {
+			newItems = append(slices.Clone(allEvents), newItems...)
+		}
+	} else if strings.Contains(ticketName, "Two Day Workshop") {
+		newItems = slices.Clone(generativeAIWorkshopEvents)
+		if strings.Contains(ticketName, "All Events") {
+			newItems = append(slices.Clone(allEvents), newItems...)
+		}
 	}
 	return newItems, nil
 }
