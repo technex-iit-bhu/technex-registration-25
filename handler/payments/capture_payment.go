@@ -53,6 +53,9 @@ var allEvents = []string{
 	"BetScript",
 	"CogniQuest",
 	"MarketSmith",
+
+	"BGMI",
+	"FreeFire",
 }
 
 var allEventTickets = []string{
@@ -66,6 +69,10 @@ var singleEventTickets = []string{
 	"Technex Single Event + Accomodation Card",
 	"Test single event card",
 	"Technex Online Events Card",
+	"Technex Esports Single Member Card",
+	"Technex Esports Two Members Card",
+	"Technex Esports Three Members Card",
+	"Technex Esports Squad Card",
 }
 
 var onlineEventOptions = []string{
@@ -82,18 +89,26 @@ var generativeAIWorkshopEvents = []string{
 	"Generative AI Workshop",
 }
 
+var esportsTickets = []string{
+	"Technex Esports Single Member Card",
+	"Technex Esports Two Members Card",
+	"Technex Esports Three Members Card",
+	"Technex Esports Squad Card",
+}
+
 type TicketDetails struct {
 	TicketName string `json:"Ticket Name"`
 }
 
 type AttendeeDetails struct {
-	Email       string        `json:"Email Address"`
-	TechnexId   string        `json:"Technex ID - (TX26XXXX)"`
-	Event       string        `json:"Event"`
-	OnlineEvent string        `json:"Online Event"`
-	Ticket      TicketDetails `json:"Ticket Details"`
-	TicketURL   string        `json:"Ticket URL"`
-	InvoiceURL  string        `json:"Invoice URL"`
+	Email        string        `json:"Email Address"`
+	TechnexId    string        `json:"Technex ID - (TX26XXXX)"`
+	Event        string        `json:"Event"`
+	OnlineEvent  string        `json:"Online Event"`
+	EsportsEvent string        `json:"Esports Event"`
+	Ticket       TicketDetails `json:"Ticket Details"`
+	TicketURL    string        `json:"Ticket URL"`
+	InvoiceURL   string        `json:"Invoice URL"`
 }
 
 type Details struct {
@@ -115,6 +130,15 @@ func getEventsFromAttendeeDetails(AttDetails AttendeeDetails) ([]string, error) 
 			return nil, fmt.Errorf("invalid online event selection")
 		}
 		return []string{AttDetails.OnlineEvent}, nil
+	}
+	if slices.Contains(esportsTickets, ticketName) {
+		if AttDetails.EsportsEvent == "" {
+			return nil, fmt.Errorf("esports event selection is required for Esports tickets")
+		}
+		if !slices.Contains([]string{"BGMI", "FreeFire"}, AttDetails.EsportsEvent) {
+			return nil, fmt.Errorf("invalid esports event selection")
+		}
+		return []string{AttDetails.EsportsEvent}, nil
 	}
 	if slices.Contains(singleEventTickets, ticketName) {
 		if AttDetails.Event == "" {
