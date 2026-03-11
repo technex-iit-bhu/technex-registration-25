@@ -8,6 +8,7 @@ import (
 	"technexRegistration/models"
 	"technexRegistration/utils"
 	"time"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
@@ -47,12 +48,20 @@ func CreateUsers(c *fiber.Ctx) error {
 		users.TechnexID += "0"
 	}
 	users.TechnexID += fmt.Sprintf("%d", currentNumber)
-	// var registeredEvents []string
+	// var registeredEvents []string"json: cannot unmarshal string into Go struct field Users.year of type int
 	users.RegisteredEvents = []string{}
 	users.Tickets = []models.Ticket{}
 
 	if err := c.BodyParser(users); err != nil {
-		return utils.ResponseMsg(c, 400, err.Error(), nil)
+		log.Printf("CreateUsers: invalid request body: %v", err)
+
+		msg := "Invalid request body"
+
+		if strings.Contains(err.Error(), "Users.year") || strings.Contains(err.Error(), "year") {
+			msg = "Invalid request body: year must be a number (e.g. 1, 2, 3, 4)"
+		}
+
+		return utils.ResponseMsg(c, 400, msg, nil)
 	}
 
 	users.Email = normalizeEmail(users.Email)
