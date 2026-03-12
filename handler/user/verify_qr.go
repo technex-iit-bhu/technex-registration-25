@@ -27,7 +27,7 @@ func VerifyQR(c *fiber.Ctx) error {
 		})
 	}
 
-	username, err := utils.DeserialiseQR(body.QRToken)
+	technexID, err := utils.DeserialiseQR(body.QRToken)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid QR token",
@@ -35,7 +35,7 @@ func VerifyQR(c *fiber.Ctx) error {
 	}
 
 	var result models.Users
-	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key: "username", Value: username}}).Decode(&result)
+	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key: "technexId", Value: technexID}}).Decode(&result)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"message": "user does not exist"})
 	}

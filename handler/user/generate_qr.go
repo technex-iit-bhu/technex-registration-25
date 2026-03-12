@@ -8,8 +8,8 @@ import (
 
 func GenerateQ(c *fiber.Ctx) error {
 	var qrBody struct {
-		Username string `json:"username" bson:"username"`
-		Name string `json:"name" bson:"name"`
+		TechnexID string `json:"technexId" bson:"technexId"`
+		Name      string `json:"name" bson:"name"`
 	}
 
 	if err := c.BodyParser(&qrBody); err != nil {
@@ -18,7 +18,13 @@ func GenerateQ(c *fiber.Ctx) error {
 		})
 	}
 
-	qrToken, err := utils.SerialiseQR(qrBody.Username)
+	if qrBody.TechnexID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "technexId required",
+		})
+	}
+
+	qrToken, err := utils.SerialiseQR(qrBody.TechnexID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to generate QR token",

@@ -28,7 +28,7 @@ func GetUserFromToken(c *fiber.Ctx) error {
 	}
 
 	if cached, ok := utils.GetUserProfile(username); ok {
-		qrToken, _ := utils.SerialiseQR(cached.Username)
+		qrToken, _ := utils.SerialiseQR(cached.TechnexID)
 		return c.Status(200).JSON(fiber.Map{"data": cached, "qrToken": qrToken})
 	}
 
@@ -40,7 +40,7 @@ func GetUserFromToken(c *fiber.Ctx) error {
 	result.Password = ""
 
 	utils.SetUserProfile(username, result)
-	qrToken, _ := utils.SerialiseQR(result.Username)
+	qrToken, _ := utils.SerialiseQR(result.TechnexID)
 	return c.Status(200).JSON(fiber.Map{
 		"data":    result,
 		"qrToken": qrToken,

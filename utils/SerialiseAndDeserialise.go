@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/base64"
 	"fmt"
 	"technexRegistration/config"
 	"time"
@@ -14,6 +15,12 @@ var githubKey = []byte(config.Config("GITHUB_SECRET"))
 var recoveryKey = []byte(config.Config("RECOVERY_SECRET"))
 var qrKey = []byte(config.Config("QR_SECRET"))
 var refreshKey = []byte(config.Config("REFRESH_SECRET"))
+
+type qrClaims struct {
+	TechnexID string `json:"technex_id"`
+	Type      string `json:"type"`
+	jwt.RegisteredClaims
+}
 
 func SerialiseAccessToken(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -152,36 +159,45 @@ func DeserialiseUser(signedToken string) (string, error) {
 	return username, nil
 }
 
-func SerialiseQR(username string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": username,
-	})
+func SerialiseQR(technexID string) (string, error) {
+	claims := &qrClaims{
+		TechnexID: technexID,
+		Type:      "technex_id",
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(72 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(qrKey)
 	if err != nil {
 		return "", err
 	}
-	return signedToken, nil
+	return base64.StdEncoding.EncodeToString([]byte(signedToken)), nil
 }
 
-func DeserialiseQR(signedToken string) (string, error) {
-	token, err := jwt.Parse(signedToken, func(token *jwt.Token) (interface{}, error) {
-		return []byte(qrKey), nil
-	})
-
+func DeserialiseQR(encodedToken string) (string, error) {
+	decoded, err := base64.StdEncoding.DecodeString(encodedToken)
 	if err != nil {
 		return "", err
 	}
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return "", fmt.Errorf("invalid token claims")
+	claims := &qrClaims{}
+	token, err := jwt.ParseWithClaims(string(decoded), claims, func(token *jwt.Token) (interface{}, error) {
+		return qrKey, nil
+	})
+	if err != nil {
+		return "", err
 	}
-
-	username, ok := claims["username"].(string)
-	if !ok {
-		return "", fmt.Errorf("invalid username claim")
+	if !token.Valid {
+		return "", fmt.Errorf("invalid QR token")
 	}
-
-	return username, nil
+	if claims.Type != "technex_id" {
+		return "", fmt.Errorf("invalid QR token type")
+	}
+	if claims.TechnexID == "" {
+		return "", fmt.Errorf("missing technex ID")
+	}
+	return claims.TechnexID, nil
 }
 
 func SerialiseGmailToken(gmail string) (string, error) {
