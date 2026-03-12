@@ -16,6 +16,8 @@ var recoveryKey = []byte(config.Config("RECOVERY_SECRET"))
 var qrKey = []byte(config.Config("QR_SECRET"))
 var refreshKey = []byte(config.Config("REFRESH_SECRET"))
 
+const defaultQRExpiryDeadline = "2026-03-16T23:59:59+05:30"
+
 type qrClaims struct {
 	TechnexID string `json:"technex_id"`
 	Type      string `json:"type"`
@@ -160,11 +162,15 @@ func DeserialiseUser(signedToken string) (string, error) {
 }
 
 func SerialiseQR(technexID string) (string, error) {
+	return SerialiseQRWithExpiry(technexID, configuredQRExpiry())
+}
+
+func SerialiseQRWithExpiry(technexID string, expiresAt time.Time) (string, error) {
 	claims := &qrClaims{
 		TechnexID: technexID,
 		Type:      "technex_id",
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(72 * time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(expiresAt),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
@@ -174,6 +180,20 @@ func SerialiseQR(technexID string) (string, error) {
 		return "", err
 	}
 	return base64.StdEncoding.EncodeToString([]byte(signedToken)), nil
+}
+
+func configuredQRExpiry() time.Time {
+	configured := config.Config("QR_EVENT_EXPIRES_AT")
+	if configured == "" {
+		configured = defaultQRExpiryDeadline
+	}
+
+	deadline, err := time.Parse(time.RFC3339, configured)
+	if err == nil && deadline.After(time.Now()) {
+		return deadline
+	}
+
+	return time.Now().Add(72 * time.Hour)
 }
 
 func DeserialiseQR(encodedToken string) (string, error) {

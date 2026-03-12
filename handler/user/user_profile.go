@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"strings"
+	"technexRegistration/config"
 	"technexRegistration/database"
 	"technexRegistration/models"
 	"technexRegistration/utils"
@@ -11,6 +13,14 @@ import (
 )
 
 func GetUserFromToken(c *fiber.Ctx) error {
+	technexID := strings.TrimSpace(c.Params("technexId"))
+	if technexID == "" {
+		technexID = strings.TrimSpace(c.Query("technexId"))
+	}
+	if technexID != "" {
+		return getUserFromTechnexID(c, technexID)
+	}
+
 	authHeader := c.Get("Authorization")
 	if len(authHeader) < 8 || authHeader[:7] != "Bearer " {
 		return c.Status(401).JSON(fiber.Map{"message": "authorization header missing"})
@@ -41,6 +51,36 @@ func GetUserFromToken(c *fiber.Ctx) error {
 
 	utils.SetUserProfile(username, result)
 	qrToken, _ := utils.SerialiseQR(result.TechnexID)
+	return c.Status(200).JSON(fiber.Map{
+		"data":    result,
+		"qrToken": qrToken,
+	})
+}
+
+func getUserFromTechnexID(c *fiber.Ctx, technexID string) error {
+	apiKey := strings.TrimSpace(c.Get("api-key"))
+	adminKey := strings.TrimSpace(config.Config("admin_key"))
+	if apiKey == "" || adminKey == "" || apiKey != adminKey {
+		return c.Status(401).JSON(fiber.Map{"message": "invalid api key"})
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
+	}
+
+	var result models.Users
+	err = db.Collection("users").FindOne(context.Background(), bson.D{{Key: "technexId", Value: technexID}}).Decode(&result)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"message": "user does not exist"})
+	}
+
+	result.Password = ""
+	qrToken, err := utils.SerialiseQR(result.TechnexID)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"message": "failed to generate qr token"})
+	}
+
 	return c.Status(200).JSON(fiber.Map{
 		"data":    result,
 		"qrToken": qrToken,

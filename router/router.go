@@ -34,6 +34,7 @@ func Route(app *fiber.App) {
 	user := api.Group("/user")
 	user.Post("/register", user_handler.CreateUsers)
 	user.Get("/profile", user_handler.GetUserFromToken)
+	user.Get("/profile/:technexId", user_handler.GetUserFromToken)
 	user.Post("/login/password", user_handler.LoginWithPassword)
 	user.Post("/login/google", user_handler.LoginWithGoogle)
 	user.Post("/login/github", user_handler.LoginWithGithub)
@@ -43,6 +44,7 @@ func Route(app *fiber.App) {
 
 	user.Delete("/delete", user_handler.DeleteUser)
 	user.Patch("/update", user_handler.UpdateDetails)
+	user.Patch("/admin/ticket/:technexId", user_handler.AdminUpsertTicketByTechnexID)
 	user.Get("/recovery/:username", user_handler.SendRecoveryEmail)
 	user.Post("/verify_recovery_and_update_password", user_handler.UpdatePassword)
 	user.Post("/verify-qr", user_handler.VerifyQR)
