@@ -2,6 +2,7 @@ package models
 
 import (
 	"time"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -11,7 +12,9 @@ type Users struct {
 	Username         string             `json:"username,omitempty" bson:"username,omitempty" binding:"required"`
 	Password         string             `json:"password,omitempty" bson:"password,omitempty" binding:"required"`
 	Institute        string             `json:"institute,omitempty" bson:"institute,omitempty" binding:"required"`
+	Company          string             `json:"company,omitempty" bson:"company,omitempty"`
 	City             string             `json:"city,omitempty" bson:"city,omitempty"`
+	AadhaarNumber    string             `json:"aadhaarNumber,omitempty" bson:"aadhaarNumber,omitempty"`
 	Gender           string             `json:"gender,omitempty" bson:"gender,omitempty" binding:"required" validate:"oneof=male female others"`
 	Year             int                `json:"year,omitempty" bson:"year,omitempty"`
 	Branch           string             `json:"branch,omitempty" bson:"branch,omitempty"`

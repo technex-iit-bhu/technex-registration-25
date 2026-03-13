@@ -70,6 +70,53 @@ Create a new user account.
 - `400` - Invalid request body
 - `500` - Server error
 
+#### VIP Registration
+
+```http
+POST /api/user/vip/register
+```
+
+Register a VIP attendee and return a Technex ID immediately. This endpoint requires the admin API key to be sent via `api-key` header.
+
+**Headers**
+
+```
+api-key: <IDCARD_ADMIN_KEY>
+```
+
+**Request Body**
+
+```json
+{
+  "name": "string",
+  "email": "string",
+  "company": "string",
+  "aadhaarNumber": "string",
+  "phone": "string" // optional
+}
+```
+
+**Response**
+
+```json
+{
+  "technexId": "string",
+  "name": "string",
+  "email": "string",
+  "company": "string",
+  "aadhaarNumber": "string",
+  "qrToken": "string"
+}
+```
+
+**Response Codes**
+
+- `201` - VIP user created successfully
+- `400` - Invalid request body or missing required fields
+- `401` - Missing or invalid admin API key
+- `409` - Email already exists
+- `500` - Server error
+
 #### Get User Profile
 
 ```http

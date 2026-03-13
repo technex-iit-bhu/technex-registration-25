@@ -33,6 +33,7 @@ func Route(app *fiber.App) {
 
 	user := api.Group("/user")
 	user.Post("/register", user_handler.CreateUsers)
+	user.Post("/vip/register", user_handler.RegisterVIP)
 	user.Get("/profile", user_handler.GetUserFromToken)
 	user.Get("/profile/:technexId", user_handler.GetUserFromToken)
 	user.Post("/login/password", user_handler.LoginWithPassword)
